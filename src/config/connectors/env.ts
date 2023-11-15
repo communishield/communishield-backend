@@ -14,8 +14,20 @@ export class EnvConfigLoader implements ConfigLoaderConnector {
       mongoHost: process.env.MONGO_HOST,
       mongoPort: process.env.MONGO_PORT,
       communishieldHost: process.env.COMMUNISHIELD_HOST,
-      communishieldPort: process.env.COMMUNISHIELD_PORT,
+      communishieldPort: this.parsePort(process.env.COMMUNISHIELD_PORT),
       logLevel: process.env.COMMUNISHIELD_LOG_LEVEL as LogLevel,
     };
+  }
+
+  private parsePort(port: string | undefined) {
+    if (!port) {
+      return undefined;
+    }
+
+    try {
+      return parseInt(port, 10);
+    } catch (error) {
+      return undefined;
+    }
   }
 }

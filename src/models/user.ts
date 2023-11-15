@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
 import { Entity, type EntityData } from "./base/entity";
 import { BaseMongooseSchema } from "./base/base-mongoose-schema";
 import { z } from "zod";
 import { BaseModelFactory } from "./base/factory";
+import { hashPassword } from "@/third-parties/bcrypt/hasher";
 
 export type UserData = {
   username: string;
@@ -32,7 +32,7 @@ export class UserSchema extends BaseMongooseSchema<User> {
         return;
       }
 
-      this.password = await bcrypt.hash(this.password, 10);
+      this.password = await hashPassword(this.password);
       next();
     });
 

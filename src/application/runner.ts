@@ -1,7 +1,7 @@
 import { type Config } from "@/config/schemas";
 import { type ApplicationRunner } from "./interfaces/runner";
 import { type Logger } from "@/logger/interfaces/logger";
-import { UserRepository } from "@/repositories/user";
+import { ApiLoader } from "@/api/loader";
 
 export class ApplicationRunnerImpl implements ApplicationRunner {
   constructor(
@@ -12,13 +12,21 @@ export class ApplicationRunnerImpl implements ApplicationRunner {
   async run() {
     this.logger.info("Starting application");
 
-    console.log(
-      await (
-        await new UserRepository().initialize()
-      ).create({
-        username: "André",
-        password: "123",
-      }),
+    await this.startApi();
+
+    this.logger.info("Application started");
+  }
+
+  private async startApi() {
+    this.logger.info("Starting API");
+
+    await new ApiLoader(
+      this.config.communishieldHost,
+      this.config.communishieldPort,
+    ).load();
+
+    this.logger.info(
+      `API started on ${this.config.communishieldHost}:${this.config.communishieldPort}`,
     );
   }
 }

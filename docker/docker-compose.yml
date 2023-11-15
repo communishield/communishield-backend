@@ -26,6 +26,22 @@ services:
       - ME_CONFIG_BASICAUTH_USERNAME=admin
       - ME_CONFIG_BASICAUTH_PASSWORD=secret
 
+  redis:
+    image: bitnami/redis:6.2
+    ports:
+      - 6379:6379
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
+  redis-commander:
+    image: rediscommander/redis-commander
+    ports:
+      - 8082:8081
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
 volumes:
   mongodb_data:
     driver: local

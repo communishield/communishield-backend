@@ -3,6 +3,7 @@ import { type Repository } from "../interfaces/repository";
 import { type SpecificFieldsEntity } from "@/models/base/entity";
 import { type ModelFactory } from "@/models/interfaces/model-factory";
 import { type ModelMongooseSchema } from "@/models/interfaces/model-mongoose-schema";
+import mongoose from "mongoose";
 
 /*
 Export type Repository<
@@ -22,8 +23,31 @@ Export type Repository<
 */
 
 export class BaseMongooseRepository<T extends Model>
-  implements Repository<T, SpecificFieldsEntity<T["data"]>>
+  implements Repository<T, T["data"]>
 {
+  static mongooseObjectToObject(data: Record<string, unknown>) {
+    return Object.fromEntries(
+      Object.entries(data).map(([k, v]) => {
+        if (v instanceof mongoose.Types.ObjectId) {
+          return [k, v.toString()];
+        }
+
+        return [k, v];
+      }),
+    );
+  }
+
+  static objectToMongooseObject(data: Record<string, unknown>) {
+    const entity = { ...data };
+    const id = data._id;
+
+    if (id && typeof id === "string") {
+      entity._id = new mongoose.Types.ObjectId(id);
+    }
+
+    return entity;
+  }
+
   constructor(
     private readonly collectionName: string,
     private readonly schema: ModelMongooseSchema<T>,
@@ -43,6 +67,29 @@ export class BaseMongooseRepository<T extends Model>
 
     const result = await document.save();
 
-    return this.factory.create(result.toObject({ flattenMaps: true }));
+    return this.factory.create(
+      BaseMongooseRepository.objectToMongooseObject(
+        result.toObject({ flattenMaps: true }),
+      ),
+    );
+  }
+
+  async fetchBy(query: Partial<T["data"]>) {
+    const parsedQuery = BaseMongooseRepository.objectToMongooseObject(
+      query,
+    ) as Partial<T["data"]>;
+
+    const document =
+      await this.schema.MongooseModel.findOne(parsedQuery).exec();
+
+    if (!document) {
+      throw new Error("Document not found");
+    }
+
+    return this.factory.create(
+      BaseMongooseRepository.mongooseObjectToObject(
+        document.toObject({ flattenMaps: true }),
+      ),
+    );
   }
 }

@@ -1,3 +1,4 @@
+import { type SpecificFieldsEntity } from "@/models/base/entity";
 import { type Model } from "@/models/interfaces/model";
 
 export type ListOptions = {
@@ -12,12 +13,12 @@ export type Repository<
   M extends Model,
   ModelData extends Model["data"] = M["data"],
 > = {
-  initialize(): Promise<Repository<M, ModelData>>;
-  create(data: ModelData): Promise<M>;
+  initialize(): Promise<ThisType<Repository<M, ModelData>>>;
+  create(data: SpecificFieldsEntity<ModelData>): Promise<M>;
   //  CreateBulk(data: ModelData[]): Promise<M[]>;
   //  list(options: ListOptions): Promise<M[]>;
-  //  searchBy(query: Partial<ModelData>, options: ListOptions): Promise<M[]>;
-  //  updateBy(query: Partial<ModelData>, data: Partial<ModelData>): Promise<M[]>;
+  fetchBy(query: Partial<ModelData>): Promise<M>;
+  //  UpdateBy(query: Partial<ModelData>, data: Partial<ModelData>): Promise<M[]>;
   //  softDeleteBy(query: Partial<ModelData>): Promise<void>;
   //  hardDeleteBy(query: Partial<ModelData>): Promise<void>;
   //  restoreBy(query: Partial<ModelData>): Promise<void>;

@@ -9,7 +9,7 @@ export const partialConfigSchema = z.object({
   mongoHost: z.string().optional(),
   mongoPort: z.string().optional(),
   communishieldHost: z.string().optional(),
-  communishieldPort: z.string().optional(),
+  communishieldPort: z.number().min(0).max(65535).optional(),
   production: z.boolean().optional(),
 });
 
@@ -21,7 +21,7 @@ export const configSchema = z.object({
   mongoHost: z.string(),
   mongoPort: z.string(),
   communishieldHost: z.string(),
-  communishieldPort: z.string(),
+  communishieldPort: z.number().min(0).max(65535),
   production: z.boolean(),
 });
 

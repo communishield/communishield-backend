@@ -7,6 +7,8 @@ import { ConfigBuilderImpl } from "@/config/builder";
 import { EnvConfigLoader } from "@/config/connectors/env";
 import { type LogLevel } from "@/logger/enums/log-level";
 import { PinoLogger } from "@/logger/pino-logger";
+import { PassportLoader } from "@/third-parties/passport/loader";
+import { UserRepository } from "@/repositories/user";
 
 export class ApplicationLoaderImpl implements ApplicationLoader {
   async load() {
@@ -14,6 +16,7 @@ export class ApplicationLoaderImpl implements ApplicationLoader {
     const logger = await this.loadLogger(config.logLevel);
 
     await this.loadMongoose(config);
+    await this.loadPassport();
 
     return new ApplicationRunnerImpl(config, logger);
   }
@@ -38,5 +41,9 @@ export class ApplicationLoaderImpl implements ApplicationLoader {
       host: config.mongoHost,
       port: config.mongoPort,
     }).load();
+  }
+
+  private async loadPassport() {
+    return new PassportLoader(await new UserRepository().initialize()).load();
   }
 }
