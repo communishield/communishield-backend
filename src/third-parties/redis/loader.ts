@@ -1,18 +1,21 @@
-import mongoose from "mongoose";
+import { type RedisClientType, createClient } from "redis";
+import { RedisCache } from "./cache";
 
-export class MongooseLoader {
+export class RedisLoader {
   static createUrl(opts: {
-    username: string;
-    password: string;
-    database: string;
     host: string;
     port: number;
+    username: string;
+    password: string;
+    database?: string;
   }) {
     if (opts.username && opts.password) {
-      return `mongodb://${opts.username}:${opts.password}@${opts.host}:${opts.port}/${opts.database}`;
+      return `redis://${opts.username}:${opts.password}@${opts.host}:${
+        opts.port
+      }/${opts.database ?? 0}`;
     }
 
-    return `mongodb://${opts.host}:${opts.port}/${opts.database}`;
+    return `redis://${opts.host}:${opts.port}/${opts.database ?? 0}`;
   }
 
   private readonly username: string;
@@ -40,14 +43,17 @@ export class MongooseLoader {
   }
 
   async load() {
-    const url = MongooseLoader.createUrl({
+    const url = RedisLoader.createUrl({
+      host: this.host,
+      port: this.port,
       username: this.username,
       password: this.password,
       database: this.database,
-      host: this.host,
-      port: this.port,
     });
 
-    await mongoose.connect(url);
+    console.log(url);
+    const client = await createClient({ url }).connect();
+
+    return new RedisCache(client as RedisClientType);
   }
 }

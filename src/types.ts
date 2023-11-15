@@ -3,6 +3,8 @@ export const types = {
   logger: Symbol.for("Logger"),
   runner: Symbol.for("Runner"),
 
+  cache: Symbol.for("Cache"),
+
   mongooseLoader: Symbol.for("MongooseLoader"),
   passportLoader: Symbol.for("PassportLoader"),
 

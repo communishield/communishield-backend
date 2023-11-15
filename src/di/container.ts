@@ -15,6 +15,8 @@ import { ApiLoaderImpl } from "@/api/loader";
 import { type ApiLoader } from "@/api/interfaces/api-loader";
 import { type ApplicationRunner } from "@/application/interfaces/runner";
 import { ApplicationRunnerImpl } from "@/application/runner";
+import { RedisLoader } from "@/third-parties/redis/loader";
+import { type Cache } from "@/cache/interfaces/cache";
 
 export class ContainerLoader {
   private readonly container: Container;
@@ -32,6 +34,7 @@ export class ContainerLoader {
     const config = this.loadConfig();
     const logger = this.loadLogger(config);
     const mongooseLoader = this.loadMongooseLoader(config);
+    const cache = await this.loadRedis(config);
     const userRepository = await this.loadUserRepository();
     const apiLoader = this.loadApiLoader(config);
 
@@ -40,6 +43,7 @@ export class ContainerLoader {
     this.container
       .bind<MongooseLoader>(types.mongooseLoader)
       .toConstantValue(mongooseLoader);
+    this.container.bind<Cache>(types.cache).toConstantValue(cache);
     this.container
       .bind<PassportLoader>(types.passportLoader)
       .to(PassportLoader)
@@ -74,6 +78,16 @@ export class ContainerLoader {
       password: config.mongoPassword,
       database: config.mongoDatabase,
     });
+  }
+
+  private async loadRedis(config: Config) {
+    return new RedisLoader({
+      host: config.redisHost,
+      port: config.redisPort,
+      username: config.redisUsername,
+      password: config.redisPassword,
+      database: config.redisDatabase,
+    }).load();
   }
 
   private async loadUserRepository() {
