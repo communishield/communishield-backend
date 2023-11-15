@@ -1,15 +1,15 @@
-import { ApplicationLoaderImpl } from "./application/loader";
+import "reflect-metadata";
+import { ContainerLoader } from "./di/container";
+import { type ApplicationRunner } from "./application/interfaces/runner";
+import { types } from "./types";
 
 async function main() {
-  const app = await new ApplicationLoaderImpl().load();
+  const container = await new ContainerLoader().load();
+  const app = container.get<ApplicationRunner>(types.runner);
+
   await app.run();
 }
 
-main()
-  .then(() => {
-    console.log("done");
-  })
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+main().catch(() => {
+  process.exit(1);
+});

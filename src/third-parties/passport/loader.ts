@@ -3,9 +3,15 @@ import { type Repository } from "@/repositories/interfaces/repository";
 import { Strategy as LocalStrategy } from "passport-local";
 import passport from "koa-passport";
 import { comparePassword } from "../bcrypt/hasher";
+import { inject, injectable } from "inversify";
+import { types } from "@/types";
 
+@injectable()
 export class PassportLoader {
-  constructor(private readonly userRepository: Repository<User>) {}
+  constructor(
+    @inject(types.userRepository)
+    private readonly userRepository: Repository<User>,
+  ) {}
 
   async load() {
     passport.serializeUser((user, done) => {

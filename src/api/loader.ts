@@ -3,8 +3,9 @@ import bodyParser from "koa-bodyparser";
 import passport from "koa-passport";
 import { type Router } from "./interfaces/router";
 import { AuthRouter } from "./routes/auth";
+import { type ApiLoader } from "./interfaces/api-loader";
 
-export class ApiLoader {
+export class ApiLoaderImpl implements ApiLoader {
   private readonly app: Koa;
 
   constructor(

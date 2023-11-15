@@ -8,6 +8,7 @@
     "async-mutex": "^0.4.0",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.3.1",
+    "inversify": "^6.0.2",
     "koa": "^2.14.2",
     "koa-body": "^6.0.1",
     "koa-bodyparser": "^4.4.1",
@@ -17,6 +18,7 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "pino": "^8.16.1",
+    "reflect-metadata": "^0.1.13",
     "zod": "^3.22.4"
   },
   "devDependencies": {
