@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  mongo:
+    image: bitnami/mongodb:7.0
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/bitnami/mongodb
+    environment:
+      - MONGODB_USERNAME=${MONGODB_USERNAME}
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+
+volumes:
+  mongodb_data:
+    driver: local
