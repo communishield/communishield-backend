@@ -1,0 +1,48 @@
+import { type Model } from "@/models/interfaces/model";
+import { type Repository } from "../interfaces/repository";
+import { type SpecificFieldsEntity } from "@/models/base/entity";
+import { type ModelFactory } from "@/models/interfaces/model-factory";
+import { type ModelMongooseSchema } from "@/models/interfaces/model-mongoose-schema";
+
+/*
+Export type Repository<
+  M extends Model,
+  ModelData extends Model["data"] = M["data"],
+> = {
+  create(data: ModelData): Promise<M>;
+  createBulk(data: ModelData[]): Promise<M[]>;
+  list(options: ListOptions): Promise<M[]>;
+  searchBy(query: Partial<ModelData>, options: ListOptions): Promise<M[]>;
+  updateBy(query: Partial<ModelData>, data: Partial<ModelData>): Promise<M[]>;
+  softDeleteBy(query: Partial<ModelData>): Promise<void>;
+  hardDeleteBy(query: Partial<ModelData>): Promise<void>;
+  restoreBy(query: Partial<ModelData>): Promise<void>;
+  touchBy(query: Partial<ModelData>): Promise<void>;
+};
+*/
+
+export class BaseMongooseRepository<T extends Model>
+  implements Repository<T, SpecificFieldsEntity<T["data"]>>
+{
+  constructor(
+    private readonly collectionName: string,
+    private readonly schema: ModelMongooseSchema<T>,
+    private readonly factory: ModelFactory<T>,
+  ) {}
+
+  async initialize() {
+    await this.schema.initialize(this.collectionName);
+    return this;
+  }
+
+  async create(data: SpecificFieldsEntity<T["data"]>) {
+    const entity = this.factory.create(data);
+    delete entity.data._id;
+
+    const document = new this.schema.MongooseModel(entity.toObject());
+
+    const result = await document.save();
+
+    return this.factory.create(result.toObject({ flattenMaps: true }));
+  }
+}

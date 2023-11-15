@@ -37,6 +37,6 @@ export class ApplicationLoaderImpl implements ApplicationLoader {
       database: config.mongoDatabase,
       host: config.mongoHost,
       port: config.mongoPort,
-    });
+    }).load();
   }
 }
