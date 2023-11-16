@@ -25,6 +25,8 @@ import { type TokenGenerationService } from "@/services/token-generation/interfa
 import { TokenGenerationServiceImpl } from "@/services/token-generation/service";
 import { type Router } from "@/api/interfaces/router";
 import { AuthRouter } from "@/api/routes/auth";
+import { type RegisterService } from "@/services/register/interfaces/register-service";
+import { RegisterServiceImpl } from "@/services/register/service";
 
 export class ContainerLoader {
   private readonly container: Container;
@@ -66,6 +68,9 @@ export class ContainerLoader {
     this.container
       .bind<TokenGenerationService>(types.tokenGenerationService)
       .to(TokenGenerationServiceImpl);
+    this.container
+      .bind<RegisterService>(types.registerService)
+      .to(RegisterServiceImpl);
     this.container
       .bind<ApplicationRunner>(types.runner)
       .to(ApplicationRunnerImpl)

@@ -15,6 +15,7 @@ export const types = {
 
   loginServiceFactory: Symbol.for("LoginServiceFactory"),
   tokenGenerationService: Symbol.for("TokenGenerationService"),
+  registerService: Symbol.for("RegisterService"),
 
   userRepository: Symbol.for("UserRepository"),
 

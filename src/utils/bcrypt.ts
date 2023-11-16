@@ -11,11 +11,11 @@ export class BcryptUtils {
     this.saltRounds = config.bcryptSaltRounds;
   }
 
-  async hashPassword(password: string) {
+  async hash(password: string) {
     return bcrypt.hash(password, this.saltRounds);
   }
 
-  async comparePassword(password: string, hashedPassword: string) {
+  async compare(password: string, hashedPassword: string) {
     return bcrypt.compare(password, hashedPassword);
   }
 }

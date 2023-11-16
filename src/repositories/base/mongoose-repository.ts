@@ -68,7 +68,7 @@ export class BaseMongooseRepository<T extends Model>
     const result = await document.save();
 
     return this.factory.create(
-      BaseMongooseRepository.objectToMongooseObject(
+      BaseMongooseRepository.mongooseObjectToObject(
         result.toObject({ flattenMaps: true }),
       ),
     );

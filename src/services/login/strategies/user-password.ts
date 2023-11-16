@@ -23,17 +23,14 @@ export class UserPasswordService implements LoginService<UserPasswordParams> {
       user = await this.userRepository.fetchBy({ username });
 
       if (
-        !(await this.bcryptUtils.comparePassword(
-          password,
-          user.toObject().password,
-        ))
+        !(await this.bcryptUtils.compare(password, user.toObject().password))
       ) {
         return undefined;
       }
 
       return user.toObject();
     } catch (error) {
-      await this.bcryptUtils.comparePassword(password, ""); // Dummy call to prevent timing attacks
+      await this.bcryptUtils.compare(password, ""); // Dummy call to prevent timing attacks
       return undefined;
     }
   }
