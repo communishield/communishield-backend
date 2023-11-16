@@ -14,5 +14,9 @@ export const types = {
   jwtUtils: Symbol.for("JwtUtils"),
 
   loginServiceFactory: Symbol.for("LoginServiceFactory"),
+  tokenGenerationService: Symbol.for("TokenGenerationService"),
+
   userRepository: Symbol.for("UserRepository"),
+
+  authRouter: Symbol.for("AuthRouter"),
 };

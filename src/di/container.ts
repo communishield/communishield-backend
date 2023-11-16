@@ -18,9 +18,13 @@ import { ApplicationRunnerImpl } from "@/application/runner";
 import { RedisLoader } from "@/third-parties/redis/loader";
 import { type Cache } from "@/cache/interfaces/cache";
 import { BcryptUtils } from "@/utils/bcrypt";
-import { JwtUtils } from "@/utils/jwt";
 import { type LoginServiceFactory } from "@/services/login/interfaces/login-service-factory";
 import { LoginServiceFactoryImpl } from "@/services/login/factory";
+import { JwtUtils } from "@/utils/jwt";
+import { type TokenGenerationService } from "@/services/token-generation/interfaces/token-generation-service";
+import { TokenGenerationServiceImpl } from "@/services/token-generation/service";
+import { type Router } from "@/api/interfaces/router";
+import { AuthRouter } from "@/api/routes/auth";
 
 export class ContainerLoader {
   private readonly container: Container;
@@ -40,7 +44,6 @@ export class ContainerLoader {
     const mongooseLoader = this.loadMongooseLoader(config);
     const cache = await this.loadRedis(config);
     const userRepository = await this.loadUserRepository();
-    const apiLoader = this.loadApiLoader(config);
 
     this.container.bind<Config>(types.config).toConstantValue(config);
     this.container.bind<Logger>(types.logger).toConstantValue(logger);
@@ -55,16 +58,22 @@ export class ContainerLoader {
     this.container
       .bind<Repository<User>>(types.userRepository)
       .toConstantValue(userRepository);
-    this.container.bind<ApiLoader>(types.apiLoader).toConstantValue(apiLoader);
     this.container.bind<BcryptUtils>(types.bcryptUtils).to(BcryptUtils);
     this.container.bind<JwtUtils>(types.jwtUtils).to(JwtUtils);
     this.container
       .bind<LoginServiceFactory>(types.loginServiceFactory)
       .to(LoginServiceFactoryImpl);
     this.container
+      .bind<TokenGenerationService>(types.tokenGenerationService)
+      .to(TokenGenerationServiceImpl);
+    this.container
       .bind<ApplicationRunner>(types.runner)
       .to(ApplicationRunnerImpl)
       .inSingletonScope();
+    this.container.bind<Router>(types.authRouter).to(AuthRouter);
+
+    const apiLoader = this.loadApiLoader(config);
+    this.container.bind<ApiLoader>(types.apiLoader).toConstantValue(apiLoader);
   }
 
   private loadConfig() {
@@ -104,9 +113,12 @@ export class ContainerLoader {
   }
 
   private loadApiLoader(config: Config) {
+    const routers = [this.container.get<Router>(types.authRouter)];
+
     return new ApiLoaderImpl(
       config.communishieldHost,
       config.communishieldPort,
+      routers,
     );
   }
 }

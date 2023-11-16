@@ -16,6 +16,10 @@ export const partialConfigSchema = z.object({
   communishieldHost: z.string().optional(),
   communishieldPort: z.number().min(0).max(65535).optional(),
   jwtSecretKey: z.string().optional(),
+  jwtIssuer: z.string().optional(),
+  jwtTtl: z.number().min(1).optional(),
+  jwtAudience: z.string().optional(),
+  jwtAlgorithm: z.string().optional(),
   bcryptSaltRounds: z.number().min(1).optional(),
   production: z.boolean().optional(),
 });
@@ -35,6 +39,10 @@ export const configSchema = z.object({
   communishieldHost: z.string(),
   communishieldPort: z.number().min(0).max(65535),
   jwtSecretKey: z.string(),
+  jwtIssuer: z.string(),
+  jwtTtl: z.number().min(1),
+  jwtAudience: z.string(),
+  jwtAlgorithm: z.string(),
   bcryptSaltRounds: z.number().min(1),
   production: z.boolean(),
 });

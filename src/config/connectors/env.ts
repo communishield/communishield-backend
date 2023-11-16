@@ -21,6 +21,10 @@ export class EnvConfigLoader implements ConfigLoaderConnector {
       communishieldHost: process.env.COMMUNISHIELD_HOST,
       communishieldPort: this.parseInt(process.env.COMMUNISHIELD_PORT),
       jwtSecretKey: process.env.JWT_SECRET_KEY,
+      jwtIssuer: process.env.JWT_ISSUER,
+      jwtTtl: this.parseInt(process.env.JWT_TTL),
+      jwtAudience: process.env.JWT_AUDIENCE,
+      jwtAlgorithm: process.env.JWT_ALGORITHM,
       bcryptSaltRounds: this.parseInt(process.env.BCRYPT_SALT_ROUNDS),
       logLevel: process.env.COMMUNISHIELD_LOG_LEVEL as LogLevel,
     };

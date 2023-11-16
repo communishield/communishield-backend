@@ -2,7 +2,6 @@ import Koa from "koa";
 import bodyParser from "koa-bodyparser";
 import passport from "koa-passport";
 import { type Router } from "./interfaces/router";
-import { AuthRouter } from "./routes/auth";
 import { type ApiLoader } from "./interfaces/api-loader";
 
 export class ApiLoaderImpl implements ApiLoader {
@@ -11,6 +10,7 @@ export class ApiLoaderImpl implements ApiLoader {
   constructor(
     private readonly host: string,
     private readonly port: number,
+    private readonly routers: Router[],
   ) {
     this.app = new Koa();
   }
@@ -37,6 +37,8 @@ export class ApiLoaderImpl implements ApiLoader {
   }
 
   private registerRoutes() {
-    this.registerRoute(new AuthRouter());
+    this.routers.forEach((router) => {
+      this.registerRoute(router);
+    });
   }
 }

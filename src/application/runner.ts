@@ -1,14 +1,15 @@
 import { type Config } from "@/config/schemas";
 import { type ApplicationRunner } from "./interfaces/runner";
 import { type Logger } from "@/logger/interfaces/logger";
-import { ApiLoaderImpl } from "@/api/loader";
 import { inject, injectable } from "inversify";
 import { types } from "@/types";
 import { type MongooseLoader } from "@/third-parties/mongoose/loader";
 import { type PassportLoader } from "@/third-parties/passport/loader";
+import { ApiLoader } from "@/api/interfaces/api-loader";
 
 @injectable()
 export class ApplicationRunnerImpl implements ApplicationRunner {
+  // eslint-disable-next-line max-params
   constructor(
     @inject(types.config) private readonly config: Config,
     @inject(types.logger) private readonly logger: Logger,
@@ -16,6 +17,8 @@ export class ApplicationRunnerImpl implements ApplicationRunner {
     private readonly mongooseLoader: MongooseLoader,
     @inject(types.passportLoader)
     private readonly passportLoader: PassportLoader,
+    @inject(types.apiLoader)
+    private readonly apiLoader: ApiLoader,
   ) {}
 
   async run() {
@@ -42,10 +45,7 @@ export class ApplicationRunnerImpl implements ApplicationRunner {
   private async startApi() {
     this.logger.info("Starting API...");
 
-    await new ApiLoaderImpl(
-      this.config.communishieldHost,
-      this.config.communishieldPort,
-    ).load();
+    await this.apiLoader.load();
 
     this.logger.info(
       `API started on ${this.config.communishieldHost}:${this.config.communishieldPort}`,

@@ -6,8 +6,10 @@ import {
   type UserPasswordParams,
   UserPasswordService,
 } from "./strategies/user-password";
-import { type JwtParams, JwtService } from "./strategies/jwt";
-import { type JwtUtils } from "@/utils/jwt";
+import {
+  type JwtPayloadParams,
+  JwtPayloadService,
+} from "./strategies/jwt-payload";
 import { UnexpectedValueError } from "@/errors/unexpected-value";
 import { type LoginService } from "./interfaces/login-service";
 import { inject, injectable } from "inversify";
@@ -19,17 +21,16 @@ export class LoginServiceFactoryImpl implements LoginServiceFactory {
     @inject(types.userRepository)
     private readonly userRepository: Repository<User>,
     @inject(types.bcryptUtils) private readonly bcryptUtils: BcryptUtils,
-    @inject(types.jwtUtils) private readonly jwtUtils: JwtUtils,
   ) {}
 
   create(strategy: "user-password"): LoginService<UserPasswordParams>;
-  create(strategy: "jwt"): LoginService<JwtParams>;
+  create(strategy: "jwt-payload"): LoginService<JwtPayloadParams>;
   create(strategy: string): LoginService<Record<string, unknown>> {
     switch (strategy) {
       case "user-password":
         return new UserPasswordService(this.userRepository, this.bcryptUtils);
-      case "jwt":
-        return new JwtService(this.userRepository, this.jwtUtils);
+      case "jwt-payload":
+        return new JwtPayloadService(this.userRepository);
       default:
         throw new UnexpectedValueError(strategy, "Login strategy");
     }
