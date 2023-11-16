@@ -12,25 +12,27 @@ export class EnvConfigLoader implements ConfigLoaderConnector {
       mongoPassword: process.env.MONGO_PASSWORD,
       mongoDatabase: process.env.MONGO_DATABASE,
       mongoHost: process.env.MONGO_HOST,
-      mongoPort: this.parsePort(process.env.MONGO_PORT),
+      mongoPort: this.parseInt(process.env.MONGO_PORT),
       redisUsername: process.env.REDIS_USERNAME,
       redisPassword: process.env.REDIS_PASSWORD,
       redisDatabase: process.env.REDIS_DATABASE,
       redisHost: process.env.REDIS_HOST,
-      redisPort: this.parsePort(process.env.REDIS_PORT),
+      redisPort: this.parseInt(process.env.REDIS_PORT),
       communishieldHost: process.env.COMMUNISHIELD_HOST,
-      communishieldPort: this.parsePort(process.env.COMMUNISHIELD_PORT),
+      communishieldPort: this.parseInt(process.env.COMMUNISHIELD_PORT),
+      jwtSecretKey: process.env.JWT_SECRET_KEY,
+      bcryptSaltRounds: this.parseInt(process.env.BCRYPT_SALT_ROUNDS),
       logLevel: process.env.COMMUNISHIELD_LOG_LEVEL as LogLevel,
     };
   }
 
-  private parsePort(port: string | undefined) {
-    if (!port) {
+  private parseInt(value: string | undefined) {
+    if (!value) {
       return undefined;
     }
 
     try {
-      return parseInt(port, 10);
+      return parseInt(value, 10);
     } catch (error) {
       return undefined;
     }

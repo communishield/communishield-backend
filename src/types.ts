@@ -10,5 +10,9 @@ export const types = {
 
   apiLoader: Symbol.for("ApiLoader"),
 
+  bcryptUtils: Symbol.for("BcryptUtils"),
+  jwtUtils: Symbol.for("JwtUtils"),
+
+  loginServiceFactory: Symbol.for("LoginServiceFactory"),
   userRepository: Symbol.for("UserRepository"),
 };

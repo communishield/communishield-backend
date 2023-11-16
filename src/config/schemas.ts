@@ -15,6 +15,8 @@ export const partialConfigSchema = z.object({
   redisPort: z.number().min(0).max(65535).optional(),
   communishieldHost: z.string().optional(),
   communishieldPort: z.number().min(0).max(65535).optional(),
+  jwtSecretKey: z.string().optional(),
+  bcryptSaltRounds: z.number().min(1).optional(),
   production: z.boolean().optional(),
 });
 
@@ -32,6 +34,8 @@ export const configSchema = z.object({
   redisPort: z.number().min(0).max(65535),
   communishieldHost: z.string(),
   communishieldPort: z.number().min(0).max(65535),
+  jwtSecretKey: z.string(),
+  bcryptSaltRounds: z.number().min(1),
   production: z.boolean(),
 });
 

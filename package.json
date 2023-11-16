@@ -47,7 +47,7 @@
     "typescript": "^5.2.2"
   },
   "scripts": {
-    "start": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/index.ts | pino-pretty",
+    "start": "ts-node-dev --no-deprecation -r tsconfig-paths/register --respawn --transpile-only src/index.ts | pino-pretty",
     "build": "tsc",
     "prepare": "husky install"
   },

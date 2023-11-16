@@ -17,6 +17,10 @@ import { type ApplicationRunner } from "@/application/interfaces/runner";
 import { ApplicationRunnerImpl } from "@/application/runner";
 import { RedisLoader } from "@/third-parties/redis/loader";
 import { type Cache } from "@/cache/interfaces/cache";
+import { BcryptUtils } from "@/utils/bcrypt";
+import { JwtUtils } from "@/utils/jwt";
+import { type LoginServiceFactory } from "@/services/login/interfaces/login-service-factory";
+import { LoginServiceFactoryImpl } from "@/services/login/factory";
 
 export class ContainerLoader {
   private readonly container: Container;
@@ -52,6 +56,11 @@ export class ContainerLoader {
       .bind<Repository<User>>(types.userRepository)
       .toConstantValue(userRepository);
     this.container.bind<ApiLoader>(types.apiLoader).toConstantValue(apiLoader);
+    this.container.bind<BcryptUtils>(types.bcryptUtils).to(BcryptUtils);
+    this.container.bind<JwtUtils>(types.jwtUtils).to(JwtUtils);
+    this.container
+      .bind<LoginServiceFactory>(types.loginServiceFactory)
+      .to(LoginServiceFactoryImpl);
     this.container
       .bind<ApplicationRunner>(types.runner)
       .to(ApplicationRunnerImpl)

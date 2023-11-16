@@ -10,6 +10,7 @@ async function main() {
   await app.run();
 }
 
-main().catch(() => {
+main().catch((err) => {
+  console.error(err);
   process.exit(1);
 });
