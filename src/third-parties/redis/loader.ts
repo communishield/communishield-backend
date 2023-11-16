@@ -51,7 +51,6 @@ export class RedisLoader {
       database: this.database,
     });
 
-    console.log(url);
     const client = await createClient({ url }).connect();
 
     return new RedisCache(client as RedisClientType);
