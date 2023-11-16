@@ -8,3 +8,11 @@ export type Context<S extends Schema> = RouterContext & {
   params: S["_output"]["params"];
   query: S["_output"]["query"];
 };
+
+export type AuthenticatedContext<S extends Schema> = Context<S> & {
+  state: {
+    user: {
+      username: string;
+    };
+  };
+};
