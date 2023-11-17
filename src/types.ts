@@ -17,6 +17,9 @@ export const types = {
   tokenGenerationService: Symbol.for("TokenGenerationService"),
   registerService: Symbol.for("RegisterService"),
 
+  directoryRepository: Symbol.for("DirectoryRepository"),
+  fileRepository: Symbol.for("FileRepository"),
+  groupRepository: Symbol.for("GroupRepository"),
   userRepository: Symbol.for("UserRepository"),
 
   authRouter: Symbol.for("AuthRouter"),

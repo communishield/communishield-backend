@@ -1,3 +1,10 @@
+export type RegisterDto = {
+  email: string;
+  login: string;
+  password: string;
+  groups?: string[];
+};
+
 export type RegisterService = {
-  register(username: string, password: string): Promise<void>;
+  register(dto: RegisterDto): Promise<void>;
 };

@@ -4,7 +4,7 @@ import { type User, type UserData } from "@/models/user";
 import { type BcryptUtils } from "@/utils/bcrypt";
 
 export type UserPasswordParams = {
-  username: string;
+  login: string;
   password: string;
 };
 
@@ -15,12 +15,12 @@ export class UserPasswordService implements LoginService<UserPasswordParams> {
   ) {}
 
   async login({
-    username,
+    login,
     password,
   }: UserPasswordParams): Promise<UserData | undefined> {
     let user: User;
     try {
-      user = await this.userRepository.fetchBy({ username });
+      user = await this.userRepository.fetchBy({ login });
 
       if (
         !(await this.bcryptUtils.compare(password, user.toObject().password))

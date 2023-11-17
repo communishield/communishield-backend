@@ -27,6 +27,9 @@ import { type Router } from "@/api/interfaces/router";
 import { AuthRouter } from "@/api/routes/auth";
 import { type RegisterService } from "@/services/register/interfaces/register-service";
 import { RegisterServiceImpl } from "@/services/register/service";
+import { DirectoryRepository } from "@/repositories/directory";
+import { GroupRepository } from "@/repositories/group";
+import { FileRepository } from "@/repositories/file";
 
 export class ContainerLoader {
   private readonly container: Container;
@@ -45,6 +48,9 @@ export class ContainerLoader {
     const logger = this.loadLogger(config);
     const mongooseLoader = this.loadMongooseLoader(config);
     const cache = await this.loadRedis(config);
+    const directoryRepository = await this.loadDirectoryRepository();
+    const fileRepository = await this.loadFileRepository();
+    const groupRepository = await this.loadGroupRepository();
     const userRepository = await this.loadUserRepository();
 
     this.container.bind<Config>(types.config).toConstantValue(config);
@@ -57,6 +63,15 @@ export class ContainerLoader {
       .bind<PassportLoader>(types.passportLoader)
       .to(PassportLoader)
       .inSingletonScope();
+    this.container
+      .bind<DirectoryRepository>(types.directoryRepository)
+      .toConstantValue(directoryRepository);
+    this.container
+      .bind<FileRepository>(types.fileRepository)
+      .toConstantValue(fileRepository);
+    this.container
+      .bind<GroupRepository>(types.groupRepository)
+      .toConstantValue(groupRepository);
     this.container
       .bind<Repository<User>>(types.userRepository)
       .toConstantValue(userRepository);
@@ -111,6 +126,18 @@ export class ContainerLoader {
       password: config.redisPassword,
       database: config.redisDatabase,
     }).load();
+  }
+
+  private async loadDirectoryRepository() {
+    return new DirectoryRepository().initialize();
+  }
+
+  private async loadFileRepository() {
+    return new FileRepository().initialize();
+  }
+
+  private async loadGroupRepository() {
+    return new GroupRepository().initialize();
   }
 
   private async loadUserRepository() {

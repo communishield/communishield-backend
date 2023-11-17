@@ -3,6 +3,6 @@ import { BaseMongooseRepository } from "./base/mongoose-repository";
 
 export class UserRepository extends BaseMongooseRepository<User> {
   constructor() {
-    super("users", new UserSchema(), new UserFactory());
+    super("User", new UserSchema(), new UserFactory());
   }
 }

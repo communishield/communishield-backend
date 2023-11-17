@@ -58,9 +58,7 @@ export class AuthRouter extends BaseRouter {
     ctx: Context<typeof registerSchema>,
     next: Next,
   ) {
-    const { username, password } = ctx.request.body;
-
-    await this.registerService.register(username, password);
+    await this.registerService.register(ctx.request.body);
     ctx.body = {
       message: "User created successfully",
     };
