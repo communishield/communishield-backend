@@ -1,0 +1,108 @@
+---
+openapi: 3.0.3
+info:
+  title: Communishield
+  version: 0.1.0
+  description: >
+    This application is a security layer for managing user access to files and
+    directories based on group memberships and specific permissions. It ensures
+    secure authentication and fine-grained authorization for resource access.
+  license:
+    name: AGPL-3.0
+    url: https://www.gnu.org/licenses/agpl-3.0.en.html#license-text
+paths:
+  /login:
+    post:
+      description: >
+        Authenticates users with their login and password. Users must provide a JSON payload containing "login" and "password" fields. Upon successful authentication, it returns a JWT token for accessing protected resources.
+      operationId: "login"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+                - password
+              properties:
+                login:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Login successful
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        "401":
+          description: Login failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized
+      tags:
+        - Auth
+  /register:
+    post:
+      description: >
+        Registers a new user with their email, login, and password. The request must include a JSON payload with "email", "login", and "password" fields. Upon successful registration, it returns a message indicating that the user was created successfully.
+      operationId: "register"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - login
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                login:
+                  type: string
+                password:
+                  type: string
+                groups:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: User registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User created successfully
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid request data
+      tags:
+        - Auth

@@ -4,6 +4,7 @@ import { type SpecificFieldsEntity } from "@/models/base/entity";
 import { type ModelFactory } from "@/models/interfaces/model-factory";
 import { type ModelMongooseSchema } from "@/models/interfaces/model-mongoose-schema";
 import mongoose from "mongoose";
+import { NotFoundError } from "@/errors/not-found";
 
 /*
 Export type Repository<
@@ -83,7 +84,7 @@ export class BaseMongooseRepository<T extends Model>
       await this.schema.MongooseModel.findOne(parsedQuery).exec();
 
     if (!document) {
-      throw new Error("Document not found");
+      throw new NotFoundError(this.collectionName);
     }
 
     return this.factory.create(

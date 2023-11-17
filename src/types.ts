@@ -5,8 +5,11 @@ export const types = {
 
   cache: Symbol.for("Cache"),
 
+  errorHandlerMiddleware: Symbol.for("ErrorHandlerMiddleware"),
+
   mongooseLoader: Symbol.for("MongooseLoader"),
   passportLoader: Symbol.for("PassportLoader"),
+  swaggerLoader: Symbol.for("SwaggerLoader"),
 
   apiLoader: Symbol.for("ApiLoader"),
 

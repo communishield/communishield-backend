@@ -8,8 +8,6 @@ export abstract class BaseRouter implements Router {
 
   constructor() {
     this.router = new KoaRouter();
-
-    this.setupRoutes();
   }
 
   get routes() {
@@ -20,5 +18,5 @@ export abstract class BaseRouter implements Router {
     return this.router.allowedMethods();
   }
 
-  protected abstract setupRoutes(): void;
+  abstract setup(): Promise<void>;
 }

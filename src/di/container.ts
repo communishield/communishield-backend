@@ -30,6 +30,12 @@ import { RegisterServiceImpl } from "@/services/register/service";
 import { DirectoryRepository } from "@/repositories/directory";
 import { GroupRepository } from "@/repositories/group";
 import { FileRepository } from "@/repositories/file";
+import { type Middleware } from "@/api/middlewares/interfaces/middleware";
+import { ErrorHandlerMiddleware } from "@/api/middlewares/error-handler";
+import bodyParser from "koa-bodyparser";
+import passport from "koa-passport";
+import { SwaggerLoader } from "@/third-parties/swagger/loader";
+import { koaSwagger } from "koa2-swagger-ui";
 
 export class ContainerLoader {
   private readonly container: Container;
@@ -63,6 +69,7 @@ export class ContainerLoader {
       .bind<PassportLoader>(types.passportLoader)
       .to(PassportLoader)
       .inSingletonScope();
+    this.container.bind<SwaggerLoader>(types.swaggerLoader).to(SwaggerLoader);
     this.container
       .bind<DirectoryRepository>(types.directoryRepository)
       .toConstantValue(directoryRepository);
@@ -91,8 +98,11 @@ export class ContainerLoader {
       .to(ApplicationRunnerImpl)
       .inSingletonScope();
     this.container.bind<Router>(types.authRouter).to(AuthRouter);
+    this.container
+      .bind<Middleware>(types.errorHandlerMiddleware)
+      .to(ErrorHandlerMiddleware);
 
-    const apiLoader = this.loadApiLoader(config);
+    const apiLoader = await this.loadApiLoader(config);
     this.container.bind<ApiLoader>(types.apiLoader).toConstantValue(apiLoader);
   }
 
@@ -144,13 +154,28 @@ export class ContainerLoader {
     return new UserRepository().initialize();
   }
 
-  private loadApiLoader(config: Config) {
+  private async loadApiLoader(config: Config) {
+    const spec = await this.container
+      .get<SwaggerLoader>(types.swaggerLoader)
+      .load();
+
     const routers = [this.container.get<Router>(types.authRouter)];
+    const middlewares = [
+      this.container.get<Middleware>(types.errorHandlerMiddleware).handler,
+      bodyParser(),
+      passport.initialize(),
+      koaSwagger({
+        swaggerOptions: {
+          spec,
+        },
+      }),
+    ];
 
     return new ApiLoaderImpl(
       config.communishieldHost,
       config.communishieldPort,
       routers,
+      middlewares,
     );
   }
 }

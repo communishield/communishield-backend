@@ -26,6 +26,7 @@ export class EnvConfigLoader implements ConfigLoaderConnector {
       jwtAudience: process.env.JWT_AUDIENCE,
       jwtAlgorithm: process.env.JWT_ALGORITHM,
       bcryptSaltRounds: this.parseInt(process.env.BCRYPT_SALT_ROUNDS),
+      swaggerSpecsPath: process.env.SWAGGER_SPECS_PATH,
       logLevel: process.env.COMMUNISHIELD_LOG_LEVEL as LogLevel,
     };
   }

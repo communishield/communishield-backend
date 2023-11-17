@@ -28,7 +28,7 @@ export class PassportLoader {
 
   async load() {
     passport.use(
-      new LocalStrategy(this.lcoalOptions(), async (login, password, done) => {
+      new LocalStrategy(this.localOptions(), async (login, password, done) => {
         await this.localStrategy(login, password, done);
       }),
     );
@@ -39,7 +39,7 @@ export class PassportLoader {
     );
   }
 
-  private lcoalOptions() {
+  private localOptions() {
     return {
       usernameField: "login",
       passwordField: "password",
@@ -51,7 +51,6 @@ export class PassportLoader {
     password: string,
     done: (err: any, user?: UserData) => void,
   ) {
-    console.log(login, password);
     try {
       done(
         null,

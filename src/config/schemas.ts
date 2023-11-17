@@ -21,6 +21,7 @@ export const partialConfigSchema = z.object({
   jwtAudience: z.string().optional(),
   jwtAlgorithm: z.string().optional(),
   bcryptSaltRounds: z.number().min(1).optional(),
+  swaggerSpecsPath: z.string().optional(),
   production: z.boolean().optional(),
 });
 
@@ -44,6 +45,7 @@ export const configSchema = z.object({
   jwtAudience: z.string(),
   jwtAlgorithm: z.string(),
   bcryptSaltRounds: z.number().min(1),
+  swaggerSpecsPath: z.string(),
   production: z.boolean(),
 });
 

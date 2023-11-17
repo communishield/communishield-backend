@@ -1,8 +1,7 @@
 import Koa from "koa";
-import bodyParser from "koa-bodyparser";
-import passport from "koa-passport";
 import { type Router } from "./interfaces/router";
 import { type ApiLoader } from "./interfaces/api-loader";
+import { type Middleware } from "./middlewares/interfaces/middleware";
 
 export class ApiLoaderImpl implements ApiLoader {
   private readonly app: Koa;
@@ -11,13 +10,14 @@ export class ApiLoaderImpl implements ApiLoader {
     private readonly host: string,
     private readonly port: number,
     private readonly routers: Router[],
+    private readonly middlewares: Array<Middleware["handler"]>,
   ) {
     this.app = new Koa();
   }
 
   async load() {
     this.registerMiddlewares();
-    this.registerRoutes();
+    await this.registerRoutes();
 
     return new Promise<void>((resolve) => {
       this.app.listen(this.port, this.host, () => {
@@ -27,8 +27,9 @@ export class ApiLoaderImpl implements ApiLoader {
   }
 
   private registerMiddlewares() {
-    this.app.use(bodyParser());
-    this.app.use(passport.initialize());
+    this.middlewares.forEach((middleware) => {
+      this.app.use(middleware);
+    });
   }
 
   private registerRoute(router: Router) {
@@ -36,9 +37,12 @@ export class ApiLoaderImpl implements ApiLoader {
     this.app.use(router.allowedMethods);
   }
 
-  private registerRoutes() {
-    this.routers.forEach((router) => {
-      this.registerRoute(router);
-    });
+  private async registerRoutes() {
+    await Promise.all(
+      this.routers.map(async (router) => {
+        await router.setup();
+        this.registerRoute(router);
+      }),
+    );
   }
 }

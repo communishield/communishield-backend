@@ -1,4 +1,3 @@
-import passport from "koa-passport";
 import { BaseRouter } from "./base/base-router";
 import { inject, injectable } from "inversify";
 import { types } from "@/types";
@@ -12,6 +11,7 @@ import {
 import { RegisterService } from "@/services/register/interfaces/register-service";
 import { ValidateSchemaMiddleware } from "../middlewares/validate-schema";
 import { type blankSchema } from "../schemas/definitions/blank";
+import { AuthenticationMiddleware } from "../middlewares/authentication";
 
 @injectable()
 export class AuthRouter extends BaseRouter {
@@ -24,12 +24,10 @@ export class AuthRouter extends BaseRouter {
     super();
   }
 
-  protected setupRoutes() {
+  async setup() {
     this.router.post(
       "/login",
-      passport.authenticate("local", {
-        session: false,
-      }),
+      new AuthenticationMiddleware().handler,
       this.loginHandler.bind(this),
     );
 
@@ -47,7 +45,7 @@ export class AuthRouter extends BaseRouter {
     ctx.body = {
       message: "Login successful",
       token: await this.tokenGenerationService.generate({
-        username: ctx.state.user.username,
+        login: ctx.state.user.login,
       }),
     };
 

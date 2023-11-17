@@ -12,7 +12,7 @@ export type Context<S extends Schema> = RouterContext & {
 export type AuthenticatedContext<S extends Schema> = Context<S> & {
   state: {
     user: {
-      username: string;
+      login: string;
     };
   };
 };
