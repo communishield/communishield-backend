@@ -7,7 +7,10 @@
   "overrides": [
     {
       "extends": ["xo-typescript", "prettier"],
-      "files": ["*.ts", "*.tsx"]
+      "files": ["*.ts", "*.tsx"],
+      "parserOptions": {
+        "project": "./tsconfig.eslint.json"
+      }
     }
   ],
   "plugins": ["security"],

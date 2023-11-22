@@ -1,18 +1,21 @@
-import { type ConfigBuilder } from "./interfaces/builder";
-import { type ConfigLoaderConnector } from "./interfaces/connector";
-import { type ConfigLoader } from "./interfaces/loader";
+import { bind } from "@/di/container";
+import { inject } from "inversify";
+import { ConfigBuilder } from "./types/config-builder";
+import { type ConfigLoader } from "./types/config-loader";
+import { PartialConfigLoader } from "./types/partial-config-loader";
 
+@bind("ConfigLoader")
 export class ConfigLoaderImpl implements ConfigLoader {
   constructor(
-    private readonly configBuilder: ConfigBuilder,
-    private readonly connectors: ConfigLoaderConnector[],
+    @inject("ConfigBuilder") private readonly configBuilder: ConfigBuilder,
+    @inject("EnvPartialConfigLoader")
+    private readonly envConnector: PartialConfigLoader,
   ) {}
 
   load() {
-    for (const connector of this.connectors) {
-      const config = connector.load();
-      this.configBuilder.merge(config);
-    }
+    const envConfig = this.envConnector.load();
+
+    this.configBuilder.merge(envConfig);
 
     return this.configBuilder.build();
   }

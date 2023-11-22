@@ -1,8 +1,10 @@
 import { z } from "zod";
-import { type ConfigBuilder } from "./interfaces/builder";
 import { configSchema, partialConfigSchema } from "./schemas";
-import { SchemaValidationError } from "@/errors/schema-validation";
+import { bind } from "@/di/container";
+import { SchemaValidationError } from "@/errors/schema-validation.error";
+import { type ConfigBuilder } from "./types/config-builder";
 
+@bind("ConfigBuilder")
 export class ConfigBuilderImpl implements ConfigBuilder {
   private partialConfig: z.infer<typeof partialConfigSchema>;
 

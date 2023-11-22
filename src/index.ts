@@ -1,16 +1,12 @@
 import "reflect-metadata";
-import { ContainerLoader } from "./di/container";
-import { type ApplicationRunner } from "./application/interfaces/runner";
-import { types } from "./types";
+import "@/di/deps-loader";
+import { container } from "./di/container";
+import { type Client } from "./types/client";
+import { type Logger } from "./types/logger";
 
-async function main() {
-  const container = await new ContainerLoader().load();
-  const app = container.get<ApplicationRunner>(types.runner);
-
-  await app.run();
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+container
+  .get<Client>("ServerClient")
+  .run()
+  .catch((error) => {
+    container.get<Logger>("Logger").error(`An error occured: ${error}`);
+  });

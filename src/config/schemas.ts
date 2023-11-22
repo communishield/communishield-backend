@@ -1,4 +1,4 @@
-import { LogLevel } from "@/logger/enums/log-level";
+import { LogLevel } from "@/logger/enums";
 import { z } from "zod";
 
 export const partialConfigSchema = z.object({

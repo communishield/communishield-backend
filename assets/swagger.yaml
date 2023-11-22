@@ -11,7 +11,7 @@ info:
     name: AGPL-3.0
     url: https://www.gnu.org/licenses/agpl-3.0.en.html#license-text
 paths:
-  /login:
+  /users/login:
     post:
       description: >
         Authenticates users with their login and password. Users must provide a JSON payload containing "login" and "password" fields. Upon successful authentication, it returns a JWT token for accessing protected resources.
@@ -55,8 +55,8 @@ paths:
                     type: string
                     example: Unauthorized
       tags:
-        - Auth
-  /register:
+        - Users
+  /users/register:
     post:
       description: >
         Registers a new user with their email, login, and password. The request must include a JSON payload with "email", "login", and "password" fields. Upon successful registration, it returns a message indicating that the user was created successfully.
@@ -68,21 +68,13 @@ paths:
             schema:
               type: object
               required:
-                - email
                 - login
                 - password
               properties:
-                email:
-                  type: string
-                  format: email
                 login:
                   type: string
                 password:
                   type: string
-                groups:
-                  type: array
-                  items:
-                    type: string
       responses:
         "200":
           description: User registration successful
@@ -105,4 +97,4 @@ paths:
                     type: string
                     example: Invalid request data
       tags:
-        - Auth
+        - Users

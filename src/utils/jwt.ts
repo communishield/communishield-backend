@@ -1,30 +1,32 @@
-import { Config } from "@/config/schemas";
-import { types } from "@/types";
-import { inject, injectable } from "inversify";
+import { type Config } from "@/config/schemas";
+import { bind } from "@/di/container";
+import { Getter } from "@/types/getter";
+import { inject } from "inversify";
 import jwt from "jsonwebtoken";
 
-@injectable()
+@bind("JwtUtils")
 export class JwtUtils {
-  private readonly jwtSecretKey: string;
-  private readonly jwtIssuer: string;
-  private readonly jwtTtl: number;
-  private readonly jwtAudience: string;
-  private readonly jwtAlgorithm: string;
+  private readonly ttl: number;
+  private readonly issuer: string;
+  private readonly audience: string;
+  private readonly secretKey: string;
+  private readonly algorithm: string;
 
-  constructor(@inject(types.config) config: Config) {
-    this.jwtSecretKey = config.jwtSecretKey;
-    this.jwtIssuer = config.jwtIssuer;
-    this.jwtTtl = config.jwtTtl;
-    this.jwtAudience = config.jwtAudience;
-    this.jwtAlgorithm = config.jwtAlgorithm;
+  constructor(@inject("ConfigGetter") config: Getter<Config>) {
+    this.ttl = config.get("jwtTtl");
+    this.issuer = config.get("jwtIssuer");
+    this.audience = config.get("jwtAudience");
+    this.secretKey = config.get("jwtSecretKey");
+    this.algorithm = config.get("jwtAlgorithm");
   }
 
-  sign(payload: Record<string, unknown>) {
-    return jwt.sign(payload, this.jwtSecretKey, {
-      issuer: this.jwtIssuer,
-      expiresIn: this.jwtTtl,
-      audience: this.jwtAudience,
-      algorithm: this.jwtAlgorithm as jwt.Algorithm,
+  sign(data: Record<string, unknown>) {
+    return jwt.sign(data, this.secretKey, {
+      expiresIn: this.ttl,
+      issuer: this.issuer,
+      audience: this.audience,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      algorithm: this.algorithm as any,
     });
   }
 }
