@@ -7,7 +7,7 @@ import { UsersService } from "@/services/users.service";
 
 const registerSchema = z.object({
   body: z.object({
-    login: z.string(),
+    username: z.string(),
     password: z.string(),
   }),
 });
@@ -32,10 +32,10 @@ export class RegisterEndpoint implements Endpoint<typeof registerSchema> {
   }
 
   async handler(ctx: AuthenticatedContext<typeof registerSchema>) {
-    const { login, password } = ctx.request.body;
+    const { username, password } = ctx.request.body;
 
     await this.usersService.registerUser({
-      login,
+      username,
       password,
     });
 

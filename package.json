@@ -5,6 +5,9 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "@koa/router": "^12.0.1",
+    "@mikro-orm/core": "^5.9.4",
+    "@mikro-orm/mongodb": "^5.9.4",
+    "@mikro-orm/postgresql": "^5.9.4",
     "async-mutex": "^0.4.0",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.3.1",
@@ -14,7 +17,6 @@
     "koa-bodyparser": "^4.4.1",
     "koa-passport": "^6.0.0",
     "koa2-swagger-ui": "^5.10.0",
-    "mongoose": "^8.0.1",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "pino": "^8.16.2",
@@ -24,6 +26,8 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@mikro-orm/cli": "^5.9.4",
+    "@mikro-orm/migrations": "^5.9.4",
     "@types/bcrypt": "^5.0.2",
     "@types/jest": "^29.5.8",
     "@types/koa": "^2.13.11",
@@ -63,6 +67,13 @@
     "*.{js,ts,tsx}": [
       "prettier --write",
       "eslint --fix"
+    ]
+  },
+  "mikro-orm": {
+    "useTsNode": true,
+    "configPaths": [
+      "./src/mikro-orm.config.ts",
+      "./dist/mikro-orm.config.js"
     ]
   }
 }

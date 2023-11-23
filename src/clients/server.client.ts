@@ -7,14 +7,13 @@ import { type Loader } from "@/types/loader";
 import { type Middleware } from "@/controllers/types/middleware";
 import { type Client } from "@/types/client";
 import { inject } from "inversify";
-import { Getter } from "@/types/getter";
 import { type Config } from "@/config/schemas";
 
 @bind("ServerClient")
 export class ServerClient implements Client {
   // eslint-disable-next-line max-params
   constructor(
-    @inject("ConfigGetter") private readonly config: Getter<Config>,
+    @inject("ConfigLoader") private readonly config: Loader<Config>,
     @inject("Logger") private readonly logger: Logger,
     @inject("ErrorHandlerMiddleware")
     private readonly errorHandlerMiddleware: Middleware<any>,
@@ -26,12 +25,11 @@ export class ServerClient implements Client {
   ) {}
 
   async run() {
-    const port = this.config.get("communishieldPort");
-    const host = this.config.get("communishieldHost");
+    const { communishieldPort, communishieldHost } = this.config.load();
 
     const app = this.setupServer();
-    await this.listen(app, port, host);
-    this.logger.info(`Listening on ${host}:${port}`);
+    await this.listen(app, communishieldPort, communishieldHost);
+    this.logger.info(`Listening on ${communishieldHost}:${communishieldPort}`);
   }
 
   private setupServer() {

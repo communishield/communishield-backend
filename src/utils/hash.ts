@@ -1,6 +1,6 @@
 import { type Config } from "@/config/schemas";
 import { bind } from "@/di/container";
-import { Getter } from "@/types/getter";
+import { Loader } from "@/types/loader";
 import bcrypt from "bcrypt";
 import { inject } from "inversify";
 
@@ -8,8 +8,9 @@ import { inject } from "inversify";
 export class HashUtils {
   private readonly saltRounds: number;
 
-  constructor(@inject("ConfigGetter") config: Getter<Config>) {
-    this.saltRounds = config.get("bcryptSaltRounds");
+  constructor(@inject("ConfigLoader") config: Loader<Config>) {
+    const { bcryptSaltRounds } = config.load();
+    this.saltRounds = bcryptSaltRounds;
   }
 
   async hash(password: string): Promise<string> {

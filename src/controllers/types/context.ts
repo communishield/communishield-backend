@@ -13,7 +13,7 @@ export type Context<S extends ContextSchema = ContextSchema> =
 export type AuthenticatedContext<T extends ContextSchema> = Context<T> & {
   state: {
     user: {
-      login: string;
+      username: string;
     };
   };
 };

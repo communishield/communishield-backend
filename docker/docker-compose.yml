@@ -1,47 +1,18 @@
 version: "3"
 
 services:
-  mongo:
-    image: bitnami/mongodb:7.0
+  postgres:
+    image: bitnami/postgresql:16
     ports:
-      - 27017:27017
+      - 5432:5432
     volumes:
-      - mongodb_data:/bitnami/mongodb
+      - postgres_data:/bitnami/postgresql
+      - ../migrations:/docker-entrypoint-initdb.d
     environment:
-      - MONGODB_ROOT_USERN=${MONGO_ROOT_USER}
-      - MONGODB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
-      - MONGODB_USERNAME=${MONGO_USERNAME}
-      - MONGODB_PASSWORD=${MONGO_PASSWORD}
-      - MONGODB_DATABASE=${MONGO_DATABASE}
-
-  mongo-express:
-    image: mongo-express
-    ports:
-      - 8081:8081
-    environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_ROOT_USER}
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_ROOT_PASSWORD}
-      - ME_CONFIG_MONGODB_SERVER=mongo
-      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-      - ME_CONFIG_BASICAUTH_USERNAME=admin
-      - ME_CONFIG_BASICAUTH_PASSWORD=secret
-
-  redis:
-    image: bitnami/redis:6.2
-    ports:
-      - 6379:6379
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-
-  redis-commander:
-    image: rediscommander/redis-commander
-    ports:
-      - 8082:8081
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DB}
 
 volumes:
-  mongodb_data:
+  postgres_data:
     driver: local

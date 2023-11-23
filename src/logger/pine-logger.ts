@@ -6,8 +6,8 @@ import { bind } from "@/di/container";
 import { LogLevel } from "./enums";
 import { inject } from "inversify";
 import { type Logger } from "@/types/logger";
-import { Getter } from "@/types/getter";
 import { type Config } from "@/config/schemas";
+import { Loader } from "@/types/loader";
 
 @bind("Logger")
 export class PinoLogger implements Logger {
@@ -30,9 +30,11 @@ export class PinoLogger implements Logger {
 
   private readonly logger: PinoLoggerInstance;
 
-  constructor(@inject("ConfigGetter") config: Getter<Config>) {
+  constructor(@inject("ConfigLoader") config: Loader<Config>) {
+    const { logLevel } = config.load();
+
     this.logger = pino({
-      level: PinoLogger.getLevel(config.get("logLevel")),
+      level: PinoLogger.getLevel(logLevel),
       formatters: {
         level(label: string) {
           return { level: label };

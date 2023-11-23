@@ -1,6 +1,11 @@
 {
-  "watch": ["src"],
+  "watch": [
+    "src"
+  ],
   "ext": "ts",
-  "ignore": ["src/**/*.spec.ts", "src/di/deps-loader.ts"],
-  "exec": "npm run prestart && ts-node -r tsconfig-paths/register ./src/index.ts | pino-pretty"
+  "ignore": [
+    "src/**/*.spec.ts",
+    "src/di/deps-loader.ts"
+  ],
+  "exec": "ts-node -r tsconfig-paths/register ./src/index.ts | pino-pretty"
 }

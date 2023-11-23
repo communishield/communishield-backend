@@ -1,7 +1,6 @@
 import { type Config } from "@/config/schemas";
 import { type Middleware } from "@/controllers/types/middleware";
 import { bind } from "@/di/container";
-import { Getter } from "@/types/getter";
 import { type Loader } from "@/types/loader";
 import { inject } from "inversify";
 import { koaSwagger } from "koa2-swagger-ui";
@@ -14,8 +13,10 @@ import type Koa from "koa";
 export class SwaggerLoader implements Loader<Middleware<any>> {
   private readonly specsPath: string;
 
-  constructor(@inject("ConfigGetter") config: Getter<Config>) {
-    this.specsPath = config.get("swaggerSpecsPath");
+  constructor(@inject("ConfigLoader") config: Loader<Config>) {
+    const { swaggerSpecsPath } = config.load();
+
+    this.specsPath = swaggerSpecsPath;
   }
 
   public load() {

@@ -8,7 +8,7 @@ import { inject } from "inversify";
 
 const loginSchema = z.object({
   body: z.object({
-    login: z.string(),
+    username: z.string(),
     password: z.string(),
   }),
 });
@@ -35,9 +35,9 @@ export class LoginEndpoint implements Endpoint<typeof loginSchema> {
   }
 
   async handler(ctx: AuthenticatedContext<typeof loginSchema>) {
-    const { login } = ctx.state.user as { login: string };
+    const { username } = ctx.state.user as { username: string };
 
-    const token = await this.usersService.generateToken(login);
+    const token = await this.usersService.generateToken(username);
 
     ctx.status = 200;
     ctx.body = { message: "Login successful", token };

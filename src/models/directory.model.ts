@@ -1,11 +1,23 @@
-import { type Permission } from "./types/permission";
+/* eslint-disable new-cap */
+import {
+  Collection,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryKey,
+} from "@mikro-orm/core";
+import { FileDescriptor } from "./file-descriptor.model";
 
-export type Directory = {
-  name: string;
-  _groupId: string;
-  _directoryId: string;
-  _ownerId: string;
-  ownerPermissions: Permission[];
-  groupPermissions: Permission[];
-  otherPermissions: Permission[];
-};
+@Entity()
+export class Directory {
+  @PrimaryKey()
+  id!: number;
+
+  @OneToMany(() => FileDescriptor, (object) => object.parentDirectory)
+  contents = new Collection<FileDescriptor>(this);
+
+  @OneToOne(() => FileDescriptor, (descriptor) => descriptor.directory, {
+    owner: true,
+  })
+  descriptor!: FileDescriptor;
+}

@@ -23,10 +23,10 @@ paths:
             schema:
               type: object
               required:
-                - login
+                - username
                 - password
               properties:
-                login:
+                username:
                   type: string
                 password:
                   type: string
@@ -68,10 +68,10 @@ paths:
             schema:
               type: object
               required:
-                - login
+                - username
                 - password
               properties:
-                login:
+                username:
                   type: string
                 password:
                   type: string

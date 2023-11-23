@@ -1,41 +1,46 @@
 import { bind } from "@/di/container";
-import { Repository } from "@/types/repository";
 import { inject } from "inversify";
 import { type LoginUserDto, type RegisterUserDto } from "./types/users.dto";
-import { UserAlreadyExistsError } from "@/errors/user-already-exists.error";
 import { HashUtils } from "@/utils/hash";
 import { UserNotFoundError } from "@/errors/user-not-found.error";
 import { LoginFailedError } from "@/errors/login-failed.error";
 import { JwtUtils } from "@/utils/jwt";
-import { type User } from "@/models/user.model";
+import { User } from "@/models/user.model";
+import { type UserRepository } from "@/repositories/user.repository";
+import { UniqueConstraintViolationException } from "@mikro-orm/core";
+import { UserAlreadyExistsError } from "@/errors/user-already-exists.error";
 
 @bind("UsersService")
 export class UsersService {
   constructor(
-    @inject("UserRepository") private readonly userRepository: Repository<User>,
+    @inject("UserRepository") private readonly userRepository: UserRepository,
     @inject("HashUtils") private readonly hashUtils: HashUtils,
     @inject("JwtUtils") private readonly jwtUtils: JwtUtils,
   ) {}
 
-  async registerUser({ login, password }: RegisterUserDto): Promise<void> {
-    const user = await this.userRepository
-      .findOneBy({ login })
-      .catch(() => null);
-    if (user) {
-      throw new UserAlreadyExistsError();
-    }
-
+  async registerUser({ username, password }: RegisterUserDto): Promise<void> {
     const hashedPassword = await this.hashUtils.hash(password);
 
-    await this.userRepository.create({
-      login,
+    const user = new User();
+    Object.assign(user, {
+      username,
       password: hashedPassword,
     });
+
+    try {
+      await this.userRepository.create(user);
+    } catch (error) {
+      if (error instanceof UniqueConstraintViolationException) {
+        throw new UserAlreadyExistsError();
+      }
+
+      throw error;
+    }
   }
 
-  async loginUser({ login, password }: LoginUserDto): Promise<User> {
+  async loginUser({ username, password }: LoginUserDto): Promise<User> {
     const user = await this.userRepository
-      .findOneBy({ login })
+      .findOneBy({ username })
       .catch(() => null);
     if (!user) {
       throw new UserNotFoundError();
@@ -53,7 +58,7 @@ export class UsersService {
     return user;
   }
 
-  async generateToken(login: string): Promise<string> {
-    return this.jwtUtils.sign({ login });
+  async generateToken(username: string): Promise<string> {
+    return this.jwtUtils.sign({ username });
   }
 }

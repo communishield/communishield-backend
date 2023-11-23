@@ -1,9 +1,9 @@
 export type RegisterUserDto = {
-  login: string;
+  username: string;
   password: string;
 };
 
 export type LoginUserDto = {
-  login: string;
+  username: string;
   password: string;
 };

@@ -1,6 +1,6 @@
 import { type Config } from "@/config/schemas";
 import { bind } from "@/di/container";
-import { Getter } from "@/types/getter";
+import { Loader } from "@/types/loader";
 import { inject } from "inversify";
 import jwt from "jsonwebtoken";
 
@@ -12,12 +12,15 @@ export class JwtUtils {
   private readonly secretKey: string;
   private readonly algorithm: string;
 
-  constructor(@inject("ConfigGetter") config: Getter<Config>) {
-    this.ttl = config.get("jwtTtl");
-    this.issuer = config.get("jwtIssuer");
-    this.audience = config.get("jwtAudience");
-    this.secretKey = config.get("jwtSecretKey");
-    this.algorithm = config.get("jwtAlgorithm");
+  constructor(@inject("ConfigLoader") config: Loader<Config>) {
+    const { jwtTtl, jwtIssuer, jwtAudience, jwtSecretKey, jwtAlgorithm } =
+      config.load();
+
+    this.ttl = jwtTtl;
+    this.issuer = jwtIssuer;
+    this.audience = jwtAudience;
+    this.secretKey = jwtSecretKey;
+    this.algorithm = jwtAlgorithm;
   }
 
   sign(data: Record<string, unknown>) {

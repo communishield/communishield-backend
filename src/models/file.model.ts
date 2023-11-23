@@ -1,12 +1,17 @@
-import { type Permission } from "./types/permission";
+/* eslint-disable new-cap */
+import { Entity, OneToOne, PrimaryKey, Property } from "@mikro-orm/core";
+import { FileDescriptor } from "./file-descriptor.model";
 
-export type File = {
-  name: string;
-  data: Record<string, unknown>;
-  _groupId: string;
-  _directoryId: string;
-  _ownerId: string;
-  ownerPermissions: Permission[];
-  groupPermissions: Permission[];
-  otherPermissions: Permission[];
-};
+@Entity()
+export class File {
+  @PrimaryKey()
+  id!: number;
+
+  @Property({ type: "json" })
+  data!: Record<string, unknown>;
+
+  @OneToOne(() => FileDescriptor, (descriptor) => descriptor.file, {
+    owner: true,
+  })
+  descriptor!: FileDescriptor;
+}

@@ -27,28 +27,28 @@ export class PassportLoader implements Loader<Middleware<any>> {
 
   private setupSerialization() {
     passport.serializeUser((user: any, done) => {
-      done(null, user.login);
+      done(null, user.username);
     });
 
-    passport.deserializeUser((login, done) => {
-      done(null, { login });
+    passport.deserializeUser((username, done) => {
+      done(null, { username });
     });
   }
 
   private setupLocalStrategy() {
     passport.use(
-      new LocalStrategy(
-        { usernameField: "login" },
-        async (login, password, done) => {
-          try {
-            const user = await this.usersService.loginUser({ login, password });
+      new LocalStrategy(async (username, password, done) => {
+        try {
+          const user = await this.usersService.loginUser({
+            username,
+            password,
+          });
 
-            done(null, user);
-          } catch (err) {
-            done(err);
-          }
-        },
-      ),
+          done(null, user);
+        } catch (err) {
+          done(err);
+        }
+      }),
     );
   }
 }
