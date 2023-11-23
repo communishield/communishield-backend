@@ -6,19 +6,20 @@ import { UserNotFoundError } from "@/errors/user-not-found.error";
 import { LoginFailedError } from "@/errors/login-failed.error";
 import { JwtUtils } from "@/utils/jwt";
 import { User } from "@/models/user.model";
-import { type UserRepository } from "@/repositories/user.repository";
 import { UniqueConstraintViolationException } from "@mikro-orm/core";
 import { UserAlreadyExistsError } from "@/errors/user-already-exists.error";
+import { MikroOrmLoader } from "@/third-parties/mikro-orm/loader";
 
 @bind("UsersService")
 export class UsersService {
   constructor(
-    @inject("UserRepository") private readonly userRepository: UserRepository,
+    @inject("MikroOrmLoader") private readonly mikroOrmLoader: MikroOrmLoader,
     @inject("HashUtils") private readonly hashUtils: HashUtils,
     @inject("JwtUtils") private readonly jwtUtils: JwtUtils,
   ) {}
 
   async registerUser({ username, password }: RegisterUserDto): Promise<void> {
+    const em = await this.em;
     const hashedPassword = await this.hashUtils.hash(password);
 
     const user = new User();
@@ -28,7 +29,7 @@ export class UsersService {
     });
 
     try {
-      await this.userRepository.create(user);
+      await em.persistAndFlush(user);
     } catch (error) {
       if (error instanceof UniqueConstraintViolationException) {
         throw new UserAlreadyExistsError();
@@ -39,9 +40,11 @@ export class UsersService {
   }
 
   async loginUser({ username, password }: LoginUserDto): Promise<User> {
-    const user = await this.userRepository
-      .findOneBy({ username })
-      .catch(() => null);
+    const em = await this.em;
+
+    const user = await em.findOne(User, {
+      username,
+    });
     if (!user) {
       throw new UserNotFoundError();
     }
@@ -60,5 +63,9 @@ export class UsersService {
 
   async generateToken(username: string): Promise<string> {
     return this.jwtUtils.sign({ username });
+  }
+
+  private get em() {
+    return this.mikroOrmLoader.load();
   }
 }

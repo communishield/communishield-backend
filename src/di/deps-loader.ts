@@ -12,5 +12,4 @@ import "@/controllers/endpoints/register.endpoint";
 import "@/controllers/middlewares/error-handler.middleware";
 import "@/controllers/users.controller";
 import "@/logger/pine-logger";
-import "@/repositories/user.repository";
 import "@/services/users.service";
