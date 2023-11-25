@@ -31,6 +31,7 @@ CREATE TABLE "file_descriptor"
   (
      "id"                  SERIAL PRIMARY KEY,
      "owner_id"            INT NOT NULL,
+     "group_id"            INT NOT NULL,
      "permissions"         INT NOT NULL,
      "parent_directory_id" INT NOT NULL
   );
@@ -65,6 +66,10 @@ ALTER TABLE "group_users"
 ALTER TABLE "file_descriptor"
   ADD CONSTRAINT "file_descriptor_owner_id_foreign" FOREIGN KEY ("owner_id")
   REFERENCES "user" ("id") ON UPDATE CASCADE;
+
+ALTER TABLE "file_descriptor"
+  ADD CONSTRAINT "file_descriptor_group_id_foreign" FOREIGN KEY ("group_id")
+  REFERENCES "group" ("id") ON UPDATE CASCADE;
 
 ALTER TABLE "file_descriptor"
   ADD CONSTRAINT "file_descriptor_parent_directory_id_foreign" FOREIGN KEY (

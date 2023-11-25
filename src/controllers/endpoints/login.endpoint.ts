@@ -35,7 +35,7 @@ export class LoginEndpoint implements Endpoint<typeof loginSchema> {
   }
 
   async handler(ctx: AuthenticatedContext<typeof loginSchema>) {
-    const { username } = ctx.state.user as { username: string };
+    const { username } = ctx.state.user;
 
     const token = await this.usersService.generateToken(username);
 

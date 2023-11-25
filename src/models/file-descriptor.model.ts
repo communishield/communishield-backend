@@ -10,6 +10,7 @@ import { Directory } from "./directory.model";
 import { User } from "./user.model";
 import { File } from "./file.model";
 import { Permission } from "./permission.model";
+import { Group } from "./group.model";
 
 @Entity()
 export class FileDescriptor {
@@ -18,6 +19,9 @@ export class FileDescriptor {
 
   @ManyToOne(() => User)
   owner!: User;
+
+  @ManyToOne(() => Group)
+  group!: Group;
 
   @Property({ type: Permission })
   permissions!: Permission;
