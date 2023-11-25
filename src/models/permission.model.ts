@@ -19,7 +19,7 @@ export class Permission extends Type<Permission, number> {
   constructor(
     private readonly ownerPermission: { read: boolean; write: boolean },
     private readonly groupPermission: { read: boolean; write: boolean },
-    private readonly userPermission: { read: boolean; write: boolean },
+    private readonly otherPermission: { read: boolean; write: boolean },
   ) {
     super();
   }
@@ -31,8 +31,8 @@ export class Permission extends Type<Permission, number> {
       (this.ownerPermission.write ? 2 : 0) |
       (this.groupPermission.read ? 4 : 0) |
       (this.groupPermission.write ? 8 : 0) |
-      (this.userPermission.read ? 16 : 0) |
-      (this.userPermission.write ? 32 : 0)
+      (this.otherPermission.read ? 16 : 0) |
+      (this.otherPermission.write ? 32 : 0)
       /* eslint-enable no-bitwise */
     );
   }
