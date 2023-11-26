@@ -1,30 +1,29 @@
 ---
-openapi: 3.0.3
+openapi: 3.1.0
 info:
-  title: Communishield
+  title: File and Directory Access Management API
+  description: API for managing user access to files and directories with secure authentication and authorization.
   version: 0.1.0
-  description: >
-    This application is a security layer for managing user access to files and
-    directories based on group memberships and specific permissions. It ensures
-    secure authentication and fine-grained authorization for resource access.
   license:
     name: AGPL-3.0
-    url: https://www.gnu.org/licenses/agpl-3.0.en.html#license-text
+    url: https://www.gnu.org/licenses/agpl-3.0.en.html
+servers:
+  - url: /
+    description: Local server
+
 paths:
-  /users/login:
+  /api/v1/auth/login:
     post:
-      description: >
-        Authenticates users with their login and password. Users must provide a JSON payload containing "login" and "password" fields. Upon successful authentication, it returns a JWT token for accessing protected resources.
-      operationId: "login"
+      summary: User login
+      description: Authenticates a user and returns a JWT for accessing protected routes.
+      tags:
+        - Authentication
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - username
-                - password
               properties:
                 username:
                   type: string
@@ -32,286 +31,1075 @@ paths:
                   type: string
       responses:
         "200":
-          description: Login successful
+          description: Successful authentication, JWT token returned.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  message:
-                    type: string
-                    example: Login successful
                   token:
                     type: string
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                    examples:
+                      - "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         "401":
-          description: Login failed
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/users:
+    post:
+      summary: Create a new user
+      description: Creates a new user. Only accessible by admin users.
       tags:
         - Users
-  /users/register:
-    post:
-      description: >
-        Registers a new user with their email, login, and password. The request must include a JSON payload with "email", "login", and "password" fields. Upon successful registration, it returns a message indicating that the user was created successfully.
-      operationId: "register"
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - username
-                - password
               properties:
                 username:
                   type: string
                 password:
                   type: string
       responses:
-        "200":
-          description: User registration successful
+        "201":
+          description: User created successfully.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: User created successfully
+                $ref: "#/components/schemas/UserWithoutGroups"
         "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Invalid request data
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    get:
+      summary: Get a list of users
+      description: Retrieves a list of users. Only accessible by admin users.
       tags:
         - Users
-  /groups:
-    get:
-      description: >
-        Returns a list of all groups.
-      operationId: "listGroups"
+      security:
+        - bearerAuth: []
       responses:
         "200":
-          description: Groups list
+          description: A list of users.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  groups:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserWithoutGroups"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/users/{username}:
+    get:
+      summary: Get a specific user's details
+      description: Retrieves the details of a specific user. Accessible by admin users or the user themselves.
       tags:
-        - Groups
-    post:
-      description: >
-        Registers a new group with its name. The request must include a JSON payload with "name" field. Upon successful registration, it returns a message indicating that the group was created successfully.
-      operationId: "registerGroup"
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: The username of the user to retrieve
+      responses:
+        "200":
+          description: User details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      summary: Delete a user
+      description: Deletes a specific user. Accessible by admin users or the user themselves.
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: The username of the user to delete
+      responses:
+        "204":
+          description: User deleted successfully.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/users/{username}/password:
+    put:
+      summary: Update a user's password
+      description: Updates the password for a specific user. Accessible by admin users or the user themselves.
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: The username of the user to update the password for
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - name
+              properties:
+                newPassword:
+                  type: string
+                  format: password
+                  examples:
+                    - newpassword123
+      responses:
+        "204":
+          description: Password updated successfully.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/groups:
+    post:
+      summary: Create a new group
+      description: Creates a new group. Only accessible by admin users.
+      tags:
+        - Groups
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
               properties:
                 name:
                   type: string
+                  examples:
+                    - developer
+                    - marketing
       responses:
-        "200":
-          description: Group created successful
+        "201":
+          description: Group created successfully.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Group created
+                $ref: "#/components/schemas/GroupWithoutUsers"
         "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Invalid request data
-      tags:
-        - Groups
-  /groups/{name}:
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
     get:
-      description: >
-        Returns information about a specific group.
-      operationId: "getGroup"
-      parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Group details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  group:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Invalid request data
+      summary: Get a list of groups
+      description: Retrieves a list of groups. Only accessible by admin users.
       tags:
         - Groups
-    delete:
-      description: >
-        Deletes a specific group.
-      operationId: "deleteGroup"
-      parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
+      security:
+        - bearerAuth: []
       responses:
         "200":
-          description: Group deleted
+          description: A list of groups.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Group deleted
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Invalid request data
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroupWithoutUsers"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/groups/{groupName}:
+    get:
+      summary: Get details of a specific group
+      description: Retrieves the details of a specific group. Only accessible by admin users.
       tags:
         - Groups
-  /groups/{name}/users:
-    post:
-      description: >
-        Adds a user to a specific group.
-      operationId: "addUserToGroup"
+      security:
+        - bearerAuth: []
       parameters:
-        - name: name
-          in: path
+        - in: path
+          name: groupName
           required: true
           schema:
             type: string
+          description: The name of the group to retrieve
+      responses:
+        "200":
+          description: Group details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    put:
+      summary: Update a group's details
+      description: Updates the details of a specific group. Only accessible by admin users.
+      tags:
+        - Groups
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: groupName
+          required: true
+          schema:
+            type: string
+          description: The name of the group to update
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - username
               properties:
-                username:
+                name:
                   type: string
+                  examples:
+                    - admin
       responses:
         "200":
-          description: User added to group
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: User added to group
+          description: Group updated successfully.
         "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Invalid request data
-      tags:
-        - Groups
-  /groups/{name}/users/{username}:
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
     delete:
-      description: >
-        Removes a user from a specific group.
-      operationId: "removeUserFromGroup"
-      parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: User removed from group
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: User removed from group
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Invalid request data
+      summary: Delete a group
+      description: Deletes a specific group. Only accessible by admin users.
       tags:
         - Groups
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: groupName
+          required: true
+          schema:
+            type: string
+          description: The name of the group to delete
+      responses:
+        "204":
+          description: Group deleted successfully.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/groups/{groupName}/users:
+    post:
+      summary: Add users to a group
+      description: Adds users to a group. Only accessible by admin users.
+      tags:
+        - Groups
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: groupName
+          required: true
+          schema:
+            type: string
+          description: The name of the group to add users to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                usernames:
+                  type: array
+                  items:
+                    type: string
+                  examples:
+                    - ["andre.bortoli", "joao.guesser"]
+      responses:
+        "200":
+          description: Users added to group successfully.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/groups/{groupName}/users/{username}:
+    delete:
+      summary: Remove a user from a group
+      description: Removes a specific user from a group. Only accessible by admin users.
+      tags:
+        - Groups
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: groupName
+          required: true
+          schema:
+            type: string
+          description: The name of the group
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: The username of the user to remove from the group
+      responses:
+        "204":
+          description: User removed from group successfully.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/fd/files/{path}:
+    post:
+      summary: Create a new file
+      description: Creates a new file under the informed path if the path is a directory. Accessible by users with write access to the directory path.
+      tags:
+        - Files
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema:
+            type: string
+          description: The path where the file or directory will be created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                owner:
+                  type: string
+                  examples:
+                    - andre.bortoli
+                group:
+                  type: string
+                  examples:
+                    - admin
+                permissions:
+                  type: object
+                  properties:
+                    ownerPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+                    groupPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+                    otherPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+      responses:
+        "201":
+          description: File or directory created successfully.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/File"
+                  - $ref: "#/components/schemas/Directory"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    get:
+      summary: Get file details
+      description: Retrieves the details of a file. Accessible by users with read access to the path.
+      tags:
+        - Files
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema:
+            type: string
+          description: The path of the file to retrieve
+      responses:
+        "200":
+          description: File details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/File"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    put:
+      summary: Update a file
+      description: Updates the content/details of a file. Accessible by users with write access to the path.
+      tags:
+        - Files
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema:
+            type: string
+          description: The path of the file to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                owner:
+                  type: string
+                  examples:
+                    - andre.bortoli
+                group:
+                  type: string
+                  examples:
+                    - admin
+                permissions:
+                  type: object
+                  properties:
+                    ownerPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+                    groupPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+                    otherPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+      responses:
+        "200":
+          description: File updated successfully.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      summary: Delete a file
+      description: Deletes a file. Accessible by users with write access to the parent directory of the path.
+      tags:
+        - Files
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema:
+            type: string
+          description: The path of the file to delete
+      responses:
+        "204":
+          description: File deleted successfully.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/fd/directories/{path}:
+    post:
+      summary: Create a new directory
+      description: Creates a new directory under the informed path if the path is a directory. Accessible by users with write access to the directory path.
+      tags:
+        - Directories
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema:
+            type: string
+          description: The path where the directory will be created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                owner:
+                  type: string
+                  examples:
+                    - andre.bortoli
+                group:
+                  type: string
+                  examples:
+                    - admin
+                permissions:
+                  type: object
+                  properties:
+                    ownerPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+                    groupPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+                    otherPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+      responses:
+        "201":
+          description: Directory created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Directory"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    get:
+      summary: Get directory details
+      description: Retrieves the details of a directory. Accessible by users with read access to the path.
+      tags:
+        - Directories
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema:
+            type: string
+          description: The path of the directory to retrieve
+      responses:
+        "200":
+          description: Directory details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Directory"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    put:
+      summary: Update a directory
+      description: Updates the details of a directory. Accessible by users with write access to the path.
+      tags:
+        - Directories
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema:
+            type: string
+          description: The path of the directory to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                owner:
+                  type: string
+                  examples:
+                    - andre.bortoli
+                group:
+                  type: string
+                  examples:
+                    - admin
+                permissions:
+                  type: object
+                  properties:
+                    ownerPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+                    groupPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+                    otherPermission:
+                      type: object
+                      properties:
+                        read:
+                          type: boolean
+                        write:
+                          type: boolean
+      responses:
+        "200":
+          description: Directory updated successfully.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      summary: Delete a directory
+      description: Deletes a directory. Accessible by users with write access to the parent directory of the path.
+      tags:
+        - Directories
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema:
+            type: string
+          description: The path of the directory to delete
+      responses:
+        "204":
+          description: Directory deleted successfully.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    BadRequest:
+      description: The request is invalid or cannot be processed.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+            examples:
+              - message: "Invalid request format."
+
+    Unauthorized:
+      description: Authentication is required and has failed or has not yet been provided.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+            examples:
+              - message: "Authentication credentials were not provided."
+
+    Forbidden:
+      description: The user does not have the necessary permissions for the resource.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+            examples:
+              - message: "Access to the resource is forbidden."
+
+    NotFound:
+      description: The specified resource could not be found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+            examples:
+              - message: "The requested resource was not found."
+
+    InternalServerError:
+      description: An unexpected error occurred on the server.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+            examples:
+              - message: "Internal server error."
+
+  schemas:
+    UserWithoutGroups:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          examples:
+            - 1
+            - 2
+            - 3
+        username:
+          type: string
+          examples:
+            - andre.bortoli
+            - joao.guesser
+            - kauan.costa
+            - luiz.polido
+            - vinicius.schmitz
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          examples:
+            - 1
+            - 2
+            - 3
+        username:
+          type: string
+          examples:
+            - andre.bortoli
+            - joao.guesser
+            - kauan.costa
+            - luiz.polido
+            - vinicius.schmitz
+        groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupWithoutUsers"
+          examples:
+            - - name: "admin"
+              - name: "user"
+            - - name: "developer"
+
+    GroupWithoutUsers:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          examples:
+            - 10
+            - 11
+        name:
+          type: string
+          examples:
+            - admin
+            - user
+
+    Group:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          examples:
+            - 10
+            - 11
+        name:
+          type: string
+          examples:
+            - admin
+            - user
+        users:
+          $ref: "#/components/schemas/UserWithoutGroups"
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          examples:
+            - "Internal Server Error"
+            - "Invalid request format: <Reason>"
+
+    FileDescriptor:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          examples:
+            - 100
+            - 101
+        owner:
+          $ref: "#/components/schemas/User"
+        group:
+          $ref: "#/components/schemas/GroupWithoutUsers"
+        permissions:
+          $ref: "#/components/schemas/Permission"
+        parentDirectory:
+          oneOf:
+            - $ref: "#/components/schemas/Permission"
+            - type: "null"
+      examples:
+        - id: 100
+          owner: { id: 1, username: "andre.bortoli" }
+          group: { id: 10, name: "admin" }
+          permissions:
+            ownerPermission: { read: true, write: false }
+            groupPermission: { read: false, write: false }
+            otherPermission: { read: false, write: false }
+        - id: 101
+          owner: { id: 2, username: "joao.guesser" }
+          group: { id: 11, name: "user" }
+          permissions:
+            ownerPermission: { read: true, write: false }
+            groupPermission: { read: false, write: false }
+            otherPermission: { read: false, write: false }
+          parentDirectory: null
+
+    Permission:
+      type: object
+      properties:
+        ownerPermission:
+          type: object
+          properties:
+            read:
+              type: boolean
+            write:
+              type: boolean
+        groupPermission:
+          type: object
+          properties:
+            read:
+              type: boolean
+            write:
+              type: boolean
+        otherPermission:
+          type: object
+          properties:
+            read:
+              type: boolean
+            write:
+              type: boolean
+      examples:
+        - ownerPermission: { read: true, write: true }
+          groupPermission: { read: true, write: false }
+          otherPermission: { read: false, write: false }
+        - ownerPermission: { read: true, write: false }
+          groupPermission: { read: false, write: false }
+          otherPermission: { read: false, write: false }
+
+    File:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          examples:
+            - 200
+            - 201
+        data:
+          type: object
+          examples:
+            - content: "Hello World"
+              lastModified: "2023-11-25"
+            - content: "Sample Text"
+              lastModified: "2023-11-26"
+        descriptor:
+          $ref: "#/components/schemas/FileDescriptor"
+          examples:
+            - id: 100
+              owner: { id: 1, username: "andre.bortoli" }
+              group: { id: 10, name: "admin" }
+              permissions:
+                ownerPermission: { read: true, write: false }
+                groupPermission: { read: false, write: false }
+                otherPermission: { read: false, write: false }
+            - id: 101
+              owner: { id: 2, username: "joao.guesser" }
+              group: { id: 11, name: "user" }
+              permissions:
+                ownerPermission: { read: true, write: false }
+                groupPermission: { read: false, write: false }
+                otherPermission: { read: false, write: false }
+              parentDirectory: null
+
+    Directory:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          examples:
+            - 300
+            - 301
+        contents:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileDescriptor"
+          examples:
+            - - id: 103
+              - id: 104
+            - - id: 105
+        descriptor:
+          $ref: "#/components/schemas/FileDescriptor"
+          examples:
+            - id: 100
+              owner: { id: 1, username: "andre.bortoli" }
+              group: { id: 10, name: "admin" }
+              permissions:
+                ownerPermission: { read: true, write: false }
+                groupPermission: { read: false, write: false }
+                otherPermission: { read: false, write: false }
+            - id: 101
+              owner: { id: 2, username: "joao.guesser" }
+              group: { id: 11, name: "user" }
+              permissions:
+                ownerPermission: { read: true, write: false }
+                groupPermission: { read: false, write: false }
+                otherPermission: { read: false, write: false }
+              parentDirectory: null
