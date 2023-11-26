@@ -5,11 +5,13 @@ export type ContextSchema = z.ZodType<
     body?: Record<string, unknown>;
     params?: Record<string, unknown>;
     query?: Record<string, unknown>;
+    header?: Record<string, unknown>;
   },
   any,
   {
     body?: Record<string, unknown>;
     params?: Record<string, unknown>;
     query?: Record<string, unknown>;
+    header?: Record<string, unknown>;
   }
 >;

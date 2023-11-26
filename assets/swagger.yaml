@@ -183,7 +183,7 @@ paths:
             schema:
               type: object
               properties:
-                newPassword:
+                password:
                   type: string
                   format: password
                   examples:

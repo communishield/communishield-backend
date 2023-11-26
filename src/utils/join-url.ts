@@ -4,5 +4,7 @@ export function joinUrl(...urls: string[]) {
     .map((url) => url.replace(/(?:^\/+)|(?:\/+$)/g, ""))
     .join("/");
 
-  return urls.length > 1 && urls[0].startsWith("/") ? `/${joined}` : joined;
+  return urls.length > 1 && urls[0].startsWith("/") && !joined.startsWith("/")
+    ? `/${joined}`
+    : joined;
 }

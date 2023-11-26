@@ -21,8 +21,7 @@ export class ServerClient implements Client {
     private readonly swaggerLoader: Loader<Middleware<any>>,
     @inject("PassportLoader")
     private readonly passportLoader: Loader<Middleware<any>>,
-    @inject("UsersController") private readonly usersController: Controller,
-    @inject("GroupsController") private readonly groupsController: Controller,
+    @inject("RootController") private readonly rootController: Controller,
   ) {}
 
   async run() {
@@ -40,10 +39,8 @@ export class ServerClient implements Client {
     app.use(this.swaggerLoader.load().handler);
     app.use(bodyParser());
     app.use(this.passportLoader.load().handler);
-    app.use(this.usersController.router.routes());
-    app.use(this.usersController.router.allowedMethods());
-    app.use(this.groupsController.router.routes());
-    app.use(this.groupsController.router.allowedMethods());
+    app.use(this.rootController.router.routes());
+    app.use(this.rootController.router.allowedMethods());
 
     return app;
   }

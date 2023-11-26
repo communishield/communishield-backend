@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { type ContextSchema } from "../types/context-schema";
 import { type Middleware } from "../types/middleware";
-import type Router from "@koa/router";
 import type Koa from "koa";
 import { SchemaValidationError } from "@/errors/schema-validation.error";
+import { type Context } from "../types/context";
 
 export class ValidateSchemaMiddleware<S extends ContextSchema = ContextSchema>
   implements Middleware<S>
@@ -12,21 +12,28 @@ export class ValidateSchemaMiddleware<S extends ContextSchema = ContextSchema>
     this.handler = this.handler.bind(this);
   }
 
-  public async handler(ctx: Router.RouterContext, next: Koa.Next) {
-    const { body } = ctx.request;
-    const { params } = ctx;
-    const { query } = ctx;
+  public async handler(ctx: Context<S>, next: Koa.Next) {
+    const {
+      request: { body },
+      params,
+      query,
+      header,
+    } = ctx;
 
     try {
       const parsed = this.schema.parse({
         body,
         params,
         query,
+        header,
       });
 
-      ctx.state.body = parsed.body;
-      ctx.state.params = parsed.params;
-      ctx.state.query = parsed.query;
+      ctx.state.parsed = {
+        body: parsed.body,
+        params: parsed.params,
+        query: parsed.query,
+        header: parsed.header,
+      };
 
       await next();
     } catch (error) {

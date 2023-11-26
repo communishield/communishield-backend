@@ -64,4 +64,9 @@ describe("joinUrl", () => {
   test("handles absolute paths", () => {
     expect(joinUrl("/path", "to", "resource")).toBe("/path/to/resource");
   });
+
+  test("Handle multiple absolute paths", () => {
+    expect(joinUrl("/path", "/to", "/resource")).toBe("/path/to/resource");
+    expect(joinUrl("/", "/path", "/resource")).toBe("/path/resource");
+  });
 });
