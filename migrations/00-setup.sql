@@ -30,11 +30,16 @@ CREATE TABLE "group_users"
 CREATE TABLE "file_descriptor"
   (
      "id"                  SERIAL PRIMARY KEY,
+     "name"                VARCHAR(255) NOT NULL,
      "owner_id"            INT NOT NULL,
      "group_id"            INT NOT NULL,
      "permissions"         INT NOT NULL,
-     "parent_directory_id" INT NOT NULL
+     "parent_directory_id" INT NULL
   );
+
+ALTER TABLE "file_descriptor"
+  ADD CONSTRAINT "file_descriptor_name_parent_directory_id_unique" UNIQUE (
+  "name", "parent_directory_id");
 
 CREATE TABLE "file"
   (
@@ -73,7 +78,8 @@ ALTER TABLE "file_descriptor"
 
 ALTER TABLE "file_descriptor"
   ADD CONSTRAINT "file_descriptor_parent_directory_id_foreign" FOREIGN KEY (
-  "parent_directory_id") REFERENCES "directory" ("id") ON UPDATE CASCADE;
+  "parent_directory_id") REFERENCES "directory" ("id") ON UPDATE CASCADE ON
+  DELETE SET NULL;
 
 ALTER TABLE "file"
   ADD CONSTRAINT "file_descriptor_id_foreign" FOREIGN KEY ("descriptor_id")

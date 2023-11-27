@@ -12,7 +12,7 @@ import { FileDescriptor } from "./file-descriptor.model";
 
 @Entity()
 export class User {
-  @PrimaryKey()
+  @PrimaryKey({ hidden: true })
   id!: number;
 
   @Property({ unique: true, index: true })

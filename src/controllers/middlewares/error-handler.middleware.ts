@@ -31,7 +31,9 @@ export class ErrorHandlerMiddleware implements Middleware<any> {
   private logUnhandledError(error: unknown) {
     if (error instanceof Error) {
       this.logger.error(
-        `Unhandled error: ${error.name} | ${JSON.stringify(error)}`,
+        `Unhandled error: ${error.name} | stack: ${error.stack} | message: ${
+          error.message
+        } | extra: ${JSON.stringify(error)}`,
       );
       return;
     }

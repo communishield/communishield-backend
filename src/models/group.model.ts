@@ -10,7 +10,7 @@ import { User } from "./user.model";
 
 @Entity()
 export class Group {
-  @PrimaryKey()
+  @PrimaryKey({ hidden: true })
   id!: number;
 
   @Property({ unique: true })

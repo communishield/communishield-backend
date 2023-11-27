@@ -10,7 +10,7 @@ import { FileDescriptor } from "./file-descriptor.model";
 
 @Entity()
 export class Directory {
-  @PrimaryKey()
+  @PrimaryKey({ hidden: true })
   id!: number;
 
   @OneToMany(() => FileDescriptor, (object) => object.parentDirectory)

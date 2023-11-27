@@ -318,7 +318,7 @@ paths:
                   examples:
                     - admin
       responses:
-        "200":
+        "204":
           description: Group updated successfully.
         "400":
           $ref: "#/components/responses/BadRequest"
@@ -359,8 +359,8 @@ paths:
 
   /api/v1/groups/{groupName}/users:
     post:
-      summary: Add users to a group
-      description: Adds users to a group. Only accessible by admin users.
+      summary: Add user to a group
+      description: Adds an user to a group. Only accessible by admin users.
       tags:
         - Groups
       security:
@@ -379,12 +379,10 @@ paths:
             schema:
               type: object
               properties:
-                usernames:
-                  type: array
-                  items:
-                    type: string
+                username:
+                  type: string
                   examples:
-                    - ["andre.bortoli", "joao.guesser"]
+                    - andre.bortoli
       responses:
         "200":
           description: Users added to group successfully.
@@ -432,7 +430,7 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
-  /api/v1/fd/files/{path}:
+  /api/v1/files/{path}:
     post:
       summary: Create a new file
       description: Creates a new file under the informed path if the path is a directory. Accessible by users with write access to the directory path.
@@ -467,21 +465,21 @@ paths:
                 permissions:
                   type: object
                   properties:
-                    ownerPermission:
+                    owner:
                       type: object
                       properties:
                         read:
                           type: boolean
                         write:
                           type: boolean
-                    groupPermission:
+                    group:
                       type: object
                       properties:
                         read:
                           type: boolean
                         write:
                           type: boolean
-                    otherPermission:
+                    other:
                       type: object
                       properties:
                         read:
@@ -570,21 +568,21 @@ paths:
                 permissions:
                   type: object
                   properties:
-                    ownerPermission:
+                    owner:
                       type: object
                       properties:
                         read:
                           type: boolean
                         write:
                           type: boolean
-                    groupPermission:
+                    group:
                       type: object
                       properties:
                         read:
                           type: boolean
                         write:
                           type: boolean
-                    otherPermission:
+                    other:
                       type: object
                       properties:
                         read:
@@ -631,7 +629,7 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
-  /api/v1/fd/directories/{path}:
+  /api/v1/directories/{path}:
     post:
       summary: Create a new directory
       description: Creates a new directory under the informed path if the path is a directory. Accessible by users with write access to the directory path.
@@ -664,21 +662,21 @@ paths:
                 permissions:
                   type: object
                   properties:
-                    ownerPermission:
+                    owner:
                       type: object
                       properties:
                         read:
                           type: boolean
                         write:
                           type: boolean
-                    groupPermission:
+                    group:
                       type: object
                       properties:
                         read:
                           type: boolean
                         write:
                           type: boolean
-                    otherPermission:
+                    other:
                       type: object
                       properties:
                         read:
@@ -763,21 +761,21 @@ paths:
                 permissions:
                   type: object
                   properties:
-                    ownerPermission:
+                    owner:
                       type: object
                       properties:
                         read:
                           type: boolean
                         write:
                           type: boolean
-                    groupPermission:
+                    group:
                       type: object
                       properties:
                         read:
                           type: boolean
                         write:
                           type: boolean
-                    otherPermission:
+                    other:
                       type: object
                       properties:
                         read:

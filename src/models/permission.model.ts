@@ -16,6 +16,14 @@ export class Permission extends Type<Permission, number> {
     );
   }
 
+  static fromJson(json: {
+    owner: { read: boolean; write: boolean };
+    group: { read: boolean; write: boolean };
+    other: { read: boolean; write: boolean };
+  }) {
+    return new Permission(json.owner, json.group, json.other);
+  }
+
   constructor(
     private readonly ownerPermission: { read: boolean; write: boolean },
     private readonly groupPermission: { read: boolean; write: boolean },
@@ -63,5 +71,14 @@ export class Permission extends Type<Permission, number> {
 
   getColumnType(_prop: EntityProperty, _platform: Platform) {
     return "int";
+  }
+
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  toJSON(value: Permission, _platform: Platform): any {
+    return {
+      owner: value.ownerPermission,
+      group: value.groupPermission,
+      other: value.otherPermission,
+    };
   }
 }

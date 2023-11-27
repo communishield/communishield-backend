@@ -4,7 +4,7 @@ import { FileDescriptor } from "./file-descriptor.model";
 
 @Entity()
 export class File {
-  @PrimaryKey()
+  @PrimaryKey({ hidden: true })
   id!: number;
 
   @Property({ type: "json" })
