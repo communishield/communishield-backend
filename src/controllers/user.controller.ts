@@ -4,7 +4,7 @@ import { Endpoint } from "./types/endpoint";
 import { BaseController } from "./base.controller";
 
 @bind("UserController")
-export class RootController extends BaseController {
+export class UserController extends BaseController {
   // eslint-disable-next-line max-params
   constructor(
     @inject("NewUserEndpoint") newUserEndpoint: Endpoint<any>,

@@ -4,7 +4,7 @@ import { Endpoint } from "./types/endpoint";
 import { BaseController } from "./base.controller";
 
 @bind("FileController")
-export class RootController extends BaseController {
+export class FileController extends BaseController {
   constructor(
     @inject("NewFileEndpoint") newFileEndpoint: Endpoint<any>,
     @inject("GetFileEndpoint") getFileEndpoint: Endpoint<any>,

@@ -10,7 +10,7 @@ INSERT INTO "user"
              "password")
 VALUES      (0,
              'admin',
-             '$2a$10$emMmFXqDguqJxJukhQF4lOlPo/niAWd.BHvvSf.cZWcJHO2m1Gze.');
+             '$2a$10$pjKE7ksdTS1t7bg7Qlxwauo9o0dCGK3onU2wuG02kWMxse.qAumly');
 
 INSERT INTO "group_users"
             ("group_id",

@@ -4,7 +4,7 @@ import { Endpoint } from "./types/endpoint";
 import { BaseController } from "./base.controller";
 
 @bind("GroupController")
-export class RootController extends BaseController {
+export class GroupController extends BaseController {
   // eslint-disable-next-line max-params
   constructor(
     @inject("AddUserToGroupEndpoint") addUserToGroupEndpoint: Endpoint<any>,

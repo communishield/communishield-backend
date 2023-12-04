@@ -37,12 +37,18 @@ export class UserRepository {
   /**
    * Retrieves a user by username.
    */
-  async getUserByUsername(username: string): Promise<User> {
+  async getUserByUsername(
+    username: string,
+    { loadPassword = false }: { loadPassword?: boolean } = {},
+  ): Promise<User> {
     const em = await this.mikroOrmLoader.load();
 
     const user = await em
       .getRepository(User)
-      .findOne({ username }, { populate: ["groups"] });
+      .findOne(
+        { username },
+        { populate: loadPassword ? ["password", "groups"] : ["groups"] },
+      );
     if (!user) {
       throw new EntityNotFoundError("User");
     }

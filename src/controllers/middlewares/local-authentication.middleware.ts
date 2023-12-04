@@ -4,6 +4,7 @@ import { type Middleware } from "../types/middleware";
 import type Koa from "koa";
 import passport from "koa-passport";
 import { z } from "zod";
+import { bind } from "@/di/container";
 
 const loginSchema = z.object({
   body: z.object({
@@ -12,6 +13,7 @@ const loginSchema = z.object({
   }),
 });
 
+@bind("LocalAuthenticationMiddleware")
 export class LocalAuthenticationMiddleware
   implements Middleware<typeof loginSchema>
 {
@@ -22,6 +24,7 @@ export class LocalAuthenticationMiddleware
         failWithError: true,
       })(ctx, next);
     } catch (error) {
+      console.log(error);
       throw new LoginFailedError();
     }
   }

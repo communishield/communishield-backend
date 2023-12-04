@@ -26,6 +26,8 @@ export class ServerClient implements Client {
     private readonly directoryController: Controller,
     @inject("GroupController") private readonly groupController: Controller,
     @inject("UserController") private readonly userController: Controller,
+    @inject("AuthenticationController")
+    private readonly authenticationController: Controller,
   ) {}
 
   async run() {
@@ -51,6 +53,8 @@ export class ServerClient implements Client {
     app.use(this.groupController.router.allowedMethods());
     app.use(this.userController.router.routes());
     app.use(this.userController.router.allowedMethods());
+    app.use(this.authenticationController.router.routes());
+    app.use(this.authenticationController.router.allowedMethods());
 
     return app;
   }

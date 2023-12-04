@@ -6,12 +6,13 @@ import { inject } from "inversify";
 import passport from "koa-passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import type Koa from "koa";
-import { UsersService } from "@/services/users.service";
+import { AuthenticationService } from "@/services/authentication.service";
 
 @bind("PassportLoader")
 export class PassportLoader implements Loader<Middleware<any>> {
   constructor(
-    @inject("UsersService") private readonly usersService: UsersService,
+    @inject("AuthenticationService")
+    private readonly authenticationService: AuthenticationService,
   ) {}
 
   load() {
@@ -39,12 +40,9 @@ export class PassportLoader implements Loader<Middleware<any>> {
     passport.use(
       new LocalStrategy(async (username, password, done) => {
         try {
-          const user = await this.usersService.loginUser({
-            username,
-            password,
-          });
+          await this.authenticationService.authenticate(username, password);
 
-          done(null, user);
+          done(null, { username });
         } catch (err) {
           done(err);
         }
