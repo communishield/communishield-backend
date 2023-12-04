@@ -1,5 +1,6 @@
 import { type AuthenticatedContext } from "@/controllers/types/context";
 import { type Endpoint } from "@/controllers/types/endpoint";
+import { Middleware } from "@/controllers/types/middleware";
 import { bind } from "@/di/container";
 import { Permission } from "@/models/permission.model";
 import { FileService } from "@/services/file.service";
@@ -47,7 +48,13 @@ export class NewFileEndpoint implements Endpoint<typeof newFileSchema> {
 
   public schema = newFileSchema;
 
+  public get middlewares() {
+    return [this.jwtAuthenticationMiddleware];
+  }
+
   constructor(
+    @inject("JwtAuthenticationMiddleware")
+    private readonly jwtAuthenticationMiddleware: Middleware,
     @inject("FileService") private readonly fileService: FileService,
   ) {
     this.handler = this.handler.bind(this);

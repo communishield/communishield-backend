@@ -1,5 +1,6 @@
 import { type AuthenticatedContext } from "@/controllers/types/context";
 import { type Endpoint } from "@/controllers/types/endpoint";
+import { Middleware } from "@/controllers/types/middleware";
 import { bind } from "@/di/container";
 import { UserService } from "@/services/user.service";
 import { inject } from "inversify";
@@ -28,7 +29,13 @@ export class UpdateUserPasswordEndpoint
 
   public schema = updateUserPasswordSchema;
 
+  public get middlewares() {
+    return [this.jwtAuthenticationMiddleware];
+  }
+
   constructor(
+    @inject("JwtAuthenticationMiddleware")
+    private readonly jwtAuthenticationMiddleware: Middleware,
     @inject("UserService") private readonly userService: UserService,
   ) {
     this.handler = this.handler.bind(this);

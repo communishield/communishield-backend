@@ -1,5 +1,6 @@
 import { type AuthenticatedContext } from "@/controllers/types/context";
 import { type Endpoint } from "@/controllers/types/endpoint";
+import { Middleware } from "@/controllers/types/middleware";
 import { bind } from "@/di/container";
 import { DirectoryService } from "@/services/directory.service";
 import { inject } from "inversify";
@@ -29,7 +30,13 @@ export class GetDirectoryEndpoint
 
   public schema = getDirectorySchema;
 
+  public get middlewares() {
+    return [this.jwtAuthenticationMiddleware];
+  }
+
   constructor(
+    @inject("JwtAuthenticationMiddleware")
+    private readonly jwtAuthenticationMiddleware: Middleware,
     @inject("DirectoryService")
     private readonly directoryService: DirectoryService,
   ) {

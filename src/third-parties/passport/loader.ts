@@ -5,19 +5,29 @@ import { type Loader } from "@/types/loader";
 import { inject } from "inversify";
 import passport from "koa-passport";
 import { Strategy as LocalStrategy } from "passport-local";
+import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 import type Koa from "koa";
 import { AuthenticationService } from "@/services/authentication.service";
+import { type Config } from "@/config/schemas";
 
 @bind("PassportLoader")
 export class PassportLoader implements Loader<Middleware<any>> {
+  private readonly secretKey;
+
   constructor(
     @inject("AuthenticationService")
     private readonly authenticationService: AuthenticationService,
-  ) {}
+    @inject("ConfigLoader") config: Loader<Config>,
+  ) {
+    const { jwtSecretKey } = config.load();
+
+    this.secretKey = jwtSecretKey;
+  }
 
   load() {
     this.setupSerialization();
     this.setupLocalStrategy();
+    this.setupJwtStrategy();
 
     return new (class PassportMiddleware implements Middleware<any> {
       async handler(ctx: Context<any>, next: Koa.Next) {
@@ -47,6 +57,22 @@ export class PassportLoader implements Loader<Middleware<any>> {
           done(err);
         }
       }),
+    );
+  }
+
+  private setupJwtStrategy() {
+    passport.use(
+      new JwtStrategy(
+        {
+          jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+          secretOrKey: this.secretKey,
+        },
+        async (jwtPayload: { username: string }, done) => {
+          const { username } = jwtPayload;
+
+          done(null, { username });
+        },
+      ),
     );
   }
 }

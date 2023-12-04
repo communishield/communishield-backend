@@ -1,5 +1,6 @@
 import { type AuthenticatedContext } from "@/controllers/types/context";
 import { type Endpoint } from "@/controllers/types/endpoint";
+import { Middleware } from "@/controllers/types/middleware";
 import { bind } from "@/di/container";
 import { UserService } from "@/services/user.service";
 import { inject } from "inversify";
@@ -23,7 +24,13 @@ export class DeleteUserEndpoint implements Endpoint<typeof deleteUserSchema> {
 
   public schema = deleteUserSchema;
 
+  public get middlewares() {
+    return [this.jwtAuthenticationMiddleware];
+  }
+
   constructor(
+    @inject("JwtAuthenticationMiddleware")
+    private readonly jwtAuthenticationMiddleware: Middleware,
     @inject("UserService") private readonly userService: UserService,
   ) {
     this.handler = this.handler.bind(this);
