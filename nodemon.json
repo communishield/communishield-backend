@@ -7,5 +7,5 @@
     "src/**/*.spec.ts",
     "src/di/deps-loader.ts"
   ],
-  "exec": "ts-node -r tsconfig-paths/register ./src/index.ts | pino-pretty"
+  "exec": "ts-node -r tsconfig-paths/register ./src/index.ts"
 }

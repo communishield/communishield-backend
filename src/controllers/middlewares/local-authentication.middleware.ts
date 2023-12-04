@@ -1,4 +1,3 @@
-import { LoginFailedError } from "@/errors/login-failed.error";
 import { type Context } from "../types/context";
 import { type Middleware } from "../types/middleware";
 import type Koa from "koa";
@@ -18,14 +17,9 @@ export class LocalAuthenticationMiddleware
   implements Middleware<typeof loginSchema>
 {
   public async handler(ctx: Context<typeof loginSchema>, next: Koa.Next) {
-    try {
-      await passport.authenticate("local", {
-        session: false,
-        failWithError: true,
-      })(ctx, next);
-    } catch (error) {
-      console.log(error);
-      throw new LoginFailedError();
-    }
+    await passport.authenticate("local", {
+      session: false,
+      failWithError: true,
+    })(ctx, next);
   }
 }
