@@ -34,7 +34,9 @@ export class FileDescriptor {
   @ManyToOne(() => Directory, { nullable: true, hidden: true })
   parentDirectory?: Directory;
 
-  @OneToOne(() => File, (file) => file.descriptor, { hidden: true })
+  @OneToOne(() => File, (file) => file.descriptor, {
+    hidden: true,
+  })
   file?: File;
 
   @OneToOne(() => Directory, (directory) => directory.descriptor, {

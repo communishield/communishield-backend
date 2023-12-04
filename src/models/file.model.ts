@@ -12,6 +12,7 @@ export class File {
 
   @OneToOne(() => FileDescriptor, (descriptor) => descriptor.file, {
     owner: true,
+    orphanRemoval: true,
   })
   descriptor!: FileDescriptor;
 }

@@ -13,11 +13,16 @@ export class Directory {
   @PrimaryKey({ hidden: true })
   id!: number;
 
-  @OneToMany(() => FileDescriptor, (object) => object.parentDirectory)
+  @OneToMany({
+    entity: () => FileDescriptor,
+    mappedBy: "parentDirectory",
+    orphanRemoval: true,
+  })
   contents = new Collection<FileDescriptor>(this);
 
   @OneToOne(() => FileDescriptor, (descriptor) => descriptor.directory, {
     owner: true,
+    orphanRemoval: true,
   })
   descriptor!: FileDescriptor;
 }

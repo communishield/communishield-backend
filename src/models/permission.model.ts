@@ -81,4 +81,12 @@ export class Permission extends Type<Permission, number> {
       other: value.otherPermission,
     };
   }
+
+  asObject() {
+    return {
+      owner: this.ownerPermission,
+      group: this.groupPermission,
+      other: this.otherPermission,
+    };
+  }
 }
