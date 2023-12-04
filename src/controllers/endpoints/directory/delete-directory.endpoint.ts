@@ -1,3 +1,4 @@
+import { MiddlewareFactory } from "@/controllers/middlewares/types/middleware-factory";
 import { type AuthenticatedContext } from "@/controllers/types/context";
 import { type Endpoint } from "@/controllers/types/endpoint";
 import { Middleware } from "@/controllers/types/middleware";
@@ -31,12 +32,23 @@ export class DeleteDirectoryEndpoint
   public schema = deleteDirectorySchema;
 
   public get middlewares() {
-    return [this.jwtAuthenticationMiddleware];
+    return [
+      this.jwtAuthenticationMiddleware,
+      this.resourceAuthorizationMiddlewareFactory.createMiddleware(
+        (ctx: AuthenticatedContext<typeof deleteDirectorySchema>) => ({
+          resourcePath: ctx.state.parsed.params.path.slice(0, -1),
+          needsWrite: true,
+          needsRead: false,
+        }),
+      ),
+    ];
   }
 
   constructor(
     @inject("JwtAuthenticationMiddleware")
     private readonly jwtAuthenticationMiddleware: Middleware,
+    @inject("ResourceAuthorizationMiddlewareFactory")
+    private readonly resourceAuthorizationMiddlewareFactory: MiddlewareFactory<any>,
     @inject("DirectoryService")
     private readonly directoryService: DirectoryService,
   ) {

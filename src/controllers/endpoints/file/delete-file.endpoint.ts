@@ -1,3 +1,4 @@
+import { MiddlewareFactory } from "@/controllers/middlewares/types/middleware-factory";
 import { type AuthenticatedContext } from "@/controllers/types/context";
 import { type Endpoint } from "@/controllers/types/endpoint";
 import { Middleware } from "@/controllers/types/middleware";
@@ -29,12 +30,23 @@ export class DeleteFileEndpoint implements Endpoint<typeof deleteFileSchema> {
   public schema = deleteFileSchema;
 
   public get middlewares() {
-    return [this.jwtAuthenticationMiddleware];
+    return [
+      this.jwtAuthenticationMiddleware,
+      this.resourceAuthorizationMiddlewareFactory.createMiddleware(
+        (ctx: AuthenticatedContext<typeof deleteFileSchema>) => ({
+          resourcePath: ctx.state.parsed.params.path.slice(0, -1),
+          needsWrite: true,
+          needsRead: false,
+        }),
+      ),
+    ];
   }
 
   constructor(
     @inject("JwtAuthenticationMiddleware")
     private readonly jwtAuthenticationMiddleware: Middleware,
+    @inject("ResourceAuthorizationMiddlewareFactory")
+    private readonly resourceAuthorizationMiddlewareFactory: MiddlewareFactory<any>,
     @inject("FileService") private readonly fileService: FileService,
   ) {
     this.handler = this.handler.bind(this);

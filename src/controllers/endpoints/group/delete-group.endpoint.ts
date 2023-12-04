@@ -1,3 +1,4 @@
+import { MiddlewareFactory } from "@/controllers/middlewares/types/middleware-factory";
 import { type AuthenticatedContext } from "@/controllers/types/context";
 import { type Endpoint } from "@/controllers/types/endpoint";
 import { Middleware } from "@/controllers/types/middleware";
@@ -25,12 +26,21 @@ export class DeleteGroupEndpoint implements Endpoint<typeof deleteGroupSchema> {
   public schema = deleteGroupSchema;
 
   public get middlewares() {
-    return [this.jwtAuthenticationMiddleware];
+    return [
+      this.jwtAuthenticationMiddleware,
+      this.groupAuthorizationMiddleware.createMiddleware(() => ({
+        group: "admin",
+      })),
+    ];
   }
 
   constructor(
     @inject("JwtAuthenticationMiddleware")
     private readonly jwtAuthenticationMiddleware: Middleware,
+    @inject("GroupAuthorizationMiddlewareFactory")
+    private readonly groupAuthorizationMiddleware: MiddlewareFactory<{
+      group: string;
+    }>,
     @inject("GroupService") private readonly groupService: GroupService,
   ) {
     this.handler = this.handler.bind(this);

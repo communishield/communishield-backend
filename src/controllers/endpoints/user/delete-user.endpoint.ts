@@ -1,3 +1,4 @@
+import { MiddlewareFactory } from "@/controllers/middlewares/types/middleware-factory";
 import { type AuthenticatedContext } from "@/controllers/types/context";
 import { type Endpoint } from "@/controllers/types/endpoint";
 import { Middleware } from "@/controllers/types/middleware";
@@ -25,12 +26,22 @@ export class DeleteUserEndpoint implements Endpoint<typeof deleteUserSchema> {
   public schema = deleteUserSchema;
 
   public get middlewares() {
-    return [this.jwtAuthenticationMiddleware];
+    return [
+      this.jwtAuthenticationMiddleware,
+      this.selfAuthorizationMiddlewareFactory.createMiddleware(
+        (ctx: AuthenticatedContext<typeof deleteUserSchema>) =>
+          ctx.state.parsed.params,
+      ),
+    ];
   }
 
   constructor(
     @inject("JwtAuthenticationMiddleware")
     private readonly jwtAuthenticationMiddleware: Middleware,
+    @inject("SelfAuthorizationMiddlewareFactory")
+    private readonly selfAuthorizationMiddlewareFactory: MiddlewareFactory<{
+      username: string;
+    }>,
     @inject("UserService") private readonly userService: UserService,
   ) {
     this.handler = this.handler.bind(this);

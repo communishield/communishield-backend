@@ -72,4 +72,23 @@ export class AuthorizationService {
 
     return permissions;
   }
+
+  /**
+   * Checks if a user belongs to a group.
+   */
+  async checkGroupMembership(
+    username: string,
+    groupName: string,
+  ): Promise<boolean> {
+    const user = await this.userRepository.getUserByUsername(username);
+
+    if (user.id === 0) {
+      this.logger.info(
+        `Root user bypassing group membership check for group ${groupName}`,
+      );
+      return true;
+    }
+
+    return user.groups.getItems().some((group) => group.name === groupName);
+  }
 }

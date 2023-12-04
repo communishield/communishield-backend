@@ -5,6 +5,7 @@ import passport from "koa-passport";
 import { z } from "zod";
 import { bind } from "@/di/container";
 import { InvalidJwtTokenError } from "@/errors/invalid-jwt-token.error";
+import { ApplicationError } from "@/errors/application.error";
 
 const loginSchema = z.object({});
 
@@ -19,7 +20,15 @@ export class JwtAuthenticationMiddleware
         failWithError: true,
       })(ctx, next);
     } catch (error) {
-      throw new InvalidJwtTokenError();
+      if (
+        error instanceof Error &&
+        !(error instanceof ApplicationError) &&
+        error.name === "AuthenticationError"
+      ) {
+        throw new InvalidJwtTokenError();
+      }
+
+      throw error;
     }
   }
 }
