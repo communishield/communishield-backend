@@ -16,19 +16,11 @@ export class FileDescriptorRepository {
   async findFileDescriptorByPath(path: string[]): Promise<FileDescriptor> {
     const em = await this.mikroOrmLoader.load();
 
-    const name = path.at(-1);
-    const parentPath = path.slice(0, -1);
-
     const fd = await em.getRepository(FileDescriptor).findOne(
-      {
-        name,
-        parentDirectory: parentPath.reduce<Record<string, unknown>>(
-          (acc, part) => ({
-            descriptor: { name: part, parentDirectory: acc },
-          }),
-          { descriptor: { name: "root", parentDirectory: null } },
-        ),
-      },
+      path.reduce<Record<string, unknown>>(
+        (acc, part) => ({ name: part, parentDirectory: { descriptor: acc } }),
+        { name: "root", parentDirectory: null },
+      ),
       { populate: ["owner", "group", "file", "directory"] },
     );
 
