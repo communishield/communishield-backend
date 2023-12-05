@@ -21,13 +21,13 @@ For running Communishield directly on your system:
 
    ```bash
    cd communishield-backend/app
-   pnpm install # or npm install or yarn
+   npm install # or pnpm install or yarn
    ```
 
 4. Start the application:
 
    ```bash
-   pnpm start # or npm start or yarn start
+   npm start # or pnpm start or yarn start
    ```
 
 ### Using Docker Compose

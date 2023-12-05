@@ -1,6 +1,29 @@
 version: "3"
 
 services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/app/Dockerfile
+    ports:
+      - ${COMMUNISHIELD_PORT:-3000}:${COMMUNISHIELD_PORT:-3000}
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - COMMUNISHIELD_HOST=${COMMUNISHIELD_HOST}
+      - COMMUNISHIELD_PORT=${COMMUNISHIELD_PORT}
+      - COMMUNISHIELD_LOG_LEVEL=${COMMUNISHIELD_LOG_LEVEL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_TTL=${JWT_TTL}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - BCRYPT_SALT_ROUNDS=${BCRYPT_SALT_ROUNDS}
+      - SWAGGER_SPECS_PATH=${SWAGGER_SPECS_PATH}
+
   postgres:
     image: bitnami/postgresql:16
     ports:
