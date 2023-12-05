@@ -3,7 +3,7 @@ import { type LogLevel } from "@/logger/enums";
 import { bind } from "@/di/container";
 import { type PartialConfigLoader } from "../types/partial-config-loader";
 
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 @bind("EnvPartialConfigLoader")
 export class EnvPartialConfigLoader implements PartialConfigLoader {

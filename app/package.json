@@ -30,6 +30,7 @@
     "@mikro-orm/migrations": "^5.9.4",
     "@types/bcrypt": "^5.0.2",
     "@types/jest": "^29.5.8",
+    "@types/jsonwebtoken": "^9.0.5",
     "@types/koa": "^2.13.11",
     "@types/koa-bodyparser": "^4.3.12",
     "@types/koa-passport": "^6.0.3",
@@ -60,7 +61,7 @@
     "prestart": "grep -rl '^@bind' src | sed 's/^src\\//@\\//;s/\\.ts$//;s/.*/import \"\\0\"/' > src/di/deps-loader.ts",
     "start": "nodemon",
     "build": "tsc",
-    "prepare": "husky install",
+    "prepare": "cd .. && husky install app/.husky",
     "test": "jest"
   },
   "lint-staged": {
