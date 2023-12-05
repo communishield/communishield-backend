@@ -90,6 +90,6 @@ export class NewDirectoryEndpoint
     });
 
     ctx.status = 201;
-    ctx.body = "";
+    ctx.body = { message: "Directory created successfully" };
   }
 }

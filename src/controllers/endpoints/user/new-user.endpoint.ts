@@ -35,7 +35,7 @@ export class NewUserEndpoint implements Endpoint<typeof newUserSchema> {
 
     await this.userService.createUser({ username, password });
 
-    ctx.status = 200;
-    ctx.body = "";
+    ctx.status = 201;
+    ctx.body = { message: "User created successfully" };
   }
 }

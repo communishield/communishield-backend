@@ -89,6 +89,6 @@ export class NewFileEndpoint implements Endpoint<typeof newFileSchema> {
     });
 
     ctx.status = 201;
-    ctx.body = "";
+    ctx.body = { message: "File created successfully" };
   }
 }

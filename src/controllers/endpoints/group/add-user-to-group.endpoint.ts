@@ -58,6 +58,6 @@ export class AddUserToGroupEndpoint
     await this.groupService.addUserToGroup(name, username);
 
     ctx.status = 200;
-    ctx.body = "";
+    ctx.body = { message: "User added to group successfully" };
   }
 }

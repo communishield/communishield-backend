@@ -90,6 +90,6 @@ export class UpdateDirectoryEndpoint
     });
 
     ctx.status = 200;
-    ctx.body = "";
+    ctx.body = { message: "Directory updated successfully" };
   }
 }

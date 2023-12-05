@@ -51,7 +51,7 @@ export class NewGroupEndpoint implements Endpoint<typeof newGroupSchema> {
 
     await this.groupService.createGroup({ name });
 
-    ctx.status = 200;
-    ctx.body = "";
+    ctx.status = 201;
+    ctx.body = { message: "Group created successfully" };
   }
 }

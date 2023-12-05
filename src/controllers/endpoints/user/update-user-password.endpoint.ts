@@ -59,6 +59,6 @@ export class UpdateUserPasswordEndpoint
     await this.userService.updateUserPassword(username, password);
 
     ctx.status = 200;
-    ctx.body = "";
+    ctx.body = { message: "Password updated successfully" };
   }
 }

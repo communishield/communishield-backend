@@ -89,6 +89,6 @@ export class UpdateFileEndpoint implements Endpoint<typeof updateFileSchema> {
     });
 
     ctx.status = 200;
-    ctx.body = "";
+    ctx.body = { message: "File updated successfully" };
   }
 }
