@@ -77,4 +77,4 @@ Adjust these values based on your environment and security requirements.
 
 ## License
 
-Communishield is an open-source software licensed under the AGPL-3.0. For more information, see the [LICENSE](https://www.gnu.org/licenses/agpl-3.0).
+Communishield is an open-source software licensed under the AGPL-3.0. For more information, see the [LICENSE](https://github.com/communishield/communishield-backend/blob/main/LICENSE).
