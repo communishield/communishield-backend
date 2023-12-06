@@ -12,8 +12,7 @@ const getDirectorySchema = z.object({
     path: z
       .string()
       .startsWith("/")
-      .transform((path) => path.split("/").filter(Boolean))
-      .refine((path) => path.length > 0, { message: "Invalid path" }),
+      .transform((path) => path.split("/").filter(Boolean)),
   }),
 });
 

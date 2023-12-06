@@ -9,7 +9,7 @@ export class DirectoryService {
   constructor(
     @inject("DirectoryRepository")
     private readonly directoryRepository: DirectoryRepository,
-  ) {}
+  ) { }
 
   /**
    * Creates a new directory.
@@ -75,7 +75,8 @@ export class DirectoryService {
       type: fd.file ? ("file" as const) : ("directory" as const),
       owner: fd.owner.username,
       group: fd.group.name,
-      permissions: fd.permissions,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      permissions: fd.permissions.asObject() as any,
     }));
 
     return {

@@ -14,12 +14,15 @@ import { EntityAlreadyExistsError } from "@/errors/entity-already-exists.error";
 import { EntityNotFoundError } from "@/errors/entity-not-found.error";
 import { bind } from "@/di/container";
 import { EntityIsUsedError } from "@/errors/entity-is-used.error";
+import { FileDescriptorRepository } from "./file-descriptor.repository";
 
 @bind("DirectoryRepository")
 export class DirectoryRepository {
   constructor(
     @inject("MikroOrmLoader") private readonly mikroOrmLoader: MikroOrmLoader,
-  ) {}
+    @inject("FileDescriptorRepository")
+    private readonly fileDescriptorRepository: FileDescriptorRepository,
+  ) { }
 
   /**
    * Creates a new directory in the database with the specified parameters.
@@ -89,30 +92,23 @@ export class DirectoryRepository {
    */
   async findDirectoryByPath(path: string[]): Promise<Directory> {
     const em = await this.mikroOrmLoader.load();
+    const fd = await this.fileDescriptorRepository
+      .findFileDescriptorByPath(path)
+      .catch(() => {
+        throw new EntityNotFoundError("Directory");
+      });
 
-    const directoryname = path.at(-1);
-    const parentPath = path.slice(0, -1);
-
-    const directory = await em.getRepository(Directory).findOne(
-      {
-        descriptor: {
-          name: directoryname,
-          parentDirectory: parentPath.reduce<Record<string, unknown>>(
-            (acc, part) => ({
-              descriptor: { name: part, parentDirectory: acc },
-            }),
-            { descriptor: { name: "root", parentDirectory: null } },
-          ),
-        },
-      },
-      { populate: ["descriptor.owner", "descriptor.group", "contents"] },
-    );
-
-    if (!directory) {
+    if (!fd.directory) {
       throw new EntityNotFoundError("Directory");
     }
 
-    return directory;
+    await em.populate(fd, [
+      "directory.contents",
+      "directory.contents.owner",
+      "directory.contents.group",
+    ]);
+
+    return fd.directory;
   }
 
   /**

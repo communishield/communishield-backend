@@ -8,6 +8,7 @@ import { type Middleware } from "@/controllers/types/middleware";
 import { type Client } from "@/types/client";
 import { inject } from "inversify";
 import { type Config } from "@/config/schemas";
+import cors from '@koa/cors';
 
 @bind("ServerClient")
 export class ServerClient implements Client {
@@ -28,7 +29,7 @@ export class ServerClient implements Client {
     @inject("UserController") private readonly userController: Controller,
     @inject("AuthenticationController")
     private readonly authenticationController: Controller,
-  ) {}
+  ) { }
 
   async run() {
     const { communishieldPort, communishieldHost } = this.config.load();
@@ -41,6 +42,7 @@ export class ServerClient implements Client {
   private setupServer() {
     const app = new Koa();
 
+    app.use(cors());
     app.use(this.errorHandlerMiddleware.handler);
     app.use(this.swaggerLoader.load().handler);
     app.use(bodyParser());

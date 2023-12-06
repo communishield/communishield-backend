@@ -15,12 +15,15 @@ import { EntityAlreadyExistsError } from "@/errors/entity-already-exists.error";
 import { EntityNotFoundError } from "@/errors/entity-not-found.error";
 import { bind } from "@/di/container";
 import { EntityIsUsedError } from "@/errors/entity-is-used.error";
+import { FileDescriptorRepository } from "./file-descriptor.repository";
 
 @bind("FileRepository")
 export class FileRepository {
   constructor(
     @inject("MikroOrmLoader") private readonly mikroOrmLoader: MikroOrmLoader,
-  ) {}
+    @inject("FileDescriptorRepository")
+    private readonly fileDescriptorRepository: FileDescriptorRepository,
+  ) { }
 
   /**
    * Creates a new file in the database with the specified parameters.
@@ -93,30 +96,19 @@ export class FileRepository {
    */
   async findFileByPath(path: string[]): Promise<File> {
     const em = await this.mikroOrmLoader.load();
+    const fd = await this.fileDescriptorRepository
+      .findFileDescriptorByPath(path)
+      .catch(() => {
+        throw new EntityNotFoundError("File");
+      });
 
-    const filename = path.at(-1);
-    const parentPath = path.slice(0, -1);
-
-    const file = await em.getRepository(File).findOne(
-      {
-        descriptor: {
-          name: filename,
-          parentDirectory: parentPath.reduce<Record<string, unknown>>(
-            (acc, part) => ({
-              descriptor: { name: part, parentDirectory: acc },
-            }),
-            { descriptor: { name: "root", parentDirectory: null } },
-          ),
-        },
-      },
-      { populate: ["descriptor.owner", "descriptor.group"] },
-    );
-
-    if (!file) {
+    if (!fd.file) {
       throw new EntityNotFoundError("File");
     }
 
-    return file;
+    await em.populate(fd, ["file.data"]);
+
+    return fd.file;
   }
 
   /**
